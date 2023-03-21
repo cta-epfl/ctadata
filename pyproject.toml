@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "ctadata"
+version = "0.1.12"
+description = ""
+authors = ["Volodymyr Savchenko <contact@volodymyrsavchenko.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+cta-data = { callable = "ctadata:main" }
