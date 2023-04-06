@@ -2,7 +2,7 @@
 
 ## Purpose
 
-CTA and LST data are/will be stored at CTAO-CH data center at CSCS.
+CTA data are/will be stored at CTAO-CH data center at CSCS.
 These data should be accessible for selected external users.
 In addition, these files should be available within interactive analysis platform at CSCS.
 This client presents an API access to these services and data.
@@ -19,7 +19,7 @@ From within CTA CSCS JupyterHub platform, selected authorized users are able to 
 ```python
 import ctadata
 
-for url in ctadata.list_dir("lst/DL1/20241114/v0.1/headcut"):
+for url in ctadata.list_dir("cta/DL1/20241114/v0.1/"):
     if 'datacheck' not in url and '.0100' in url and '11111' in url:
         print("stored", ctadata.fetch_and_save_file(url)/1024/1024, "Mb")
         print("found keys", h5py.File(url.split("/")[-1]).keys())
@@ -44,7 +44,7 @@ import os
 os.environ["CTADS_URL"] = "DATA-DISTRIBUTING-JUPYTERHUB/services/downloadservice/"
 os.environ["JUPYTERHUB_API_TOKEN"] = "INSERT-YOUR-TOKEN-HERE"
 
-for url in ctadata.list_dir("lst/DL1/20241114/v0.1/headcut"):
+for url in ctadata.list_dir("cta/DL1/20241114/v0.1"):
     if 'datacheck' not in url and '.0100' in url and '11111' in url:
         print("stored", ctadata.fetch_and_save_file(url)/1024/1024, "Mb")
         print("found keys", h5py.File(url.split("/")[-1]).keys())
