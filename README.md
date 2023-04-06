@@ -37,7 +37,7 @@ Request a token:
 
 ![image](https://user-images.githubusercontent.com/3909535/227050281-2b012c15-ab84-4d75-a961-85057440fcf4.png)
 
-The rest is similar to the , except t
+The rest is similar to the previous case:
 
 ```python
 import os
@@ -50,8 +50,3 @@ for url in ctadata.list_dir("lst/DL1/20241114/v0.1/headcut"):
         print("found keys", h5py.File(url.split("/")[-1]).keys())
 ```
 
-## Known Issues
-
-* directory listing shows some not useful information
-  * shows also top level directories and other links, this can be misleading
-  * shows some duplicates
