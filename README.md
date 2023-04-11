@@ -1,4 +1,8 @@
-# Client for CTA Data Download Service 
+# Client for CTA Data Download Service at Swiss CTA DC
+
+## Disclaimer
+
+This is a prototype development only for Swiss CTA DC. Please report bugs here, and for any details please inquire the CTAO CH DC management.
 
 ## Purpose
 
