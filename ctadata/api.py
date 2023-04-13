@@ -14,7 +14,7 @@ class StorageException(Exception):
 
 # TODO: move to bravado and rest
 class APIClient:
-    __export_functions__ = ['list_dir', 'fetch_and_save_file', 'upload_file']
+    __export_functions__ = ['list_dir', 'fetch_and_save_file', 'upload_file', 'upload_dir']
     __class_args__ = ['token', 'downloadservice', 'data_root', 'optional_url_parts', 'chunk_size']
 
     downloadservice = os.getenv("CTADS_URL", "http://hub:5000/services/downloadservice/")
@@ -126,5 +126,13 @@ class APIClient:
 
         logger.info("upload result: %s %s", r, r.json())
         return r.json()
+    
+    def upload_dir(self, local_dir, path):
+        logger.info("uploading dir %s to %s", local_dir, path)
+        for (dirpath, dirnames, filenames) in os.walk(local_dir):
+            for name in filenames:
+                fn = os.path.join(dirpath, name)
+                self.upload_file(fn, os.path.join(path, dirpath[len(local_dir):], name))
+
 
 api_client = APIClient()

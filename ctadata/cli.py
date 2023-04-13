@@ -38,10 +38,17 @@ def get_path(ctx, path):
 
 @cli.command("put")
 @click.pass_context
-@click.argument("file", type=click.Path(exists=True))
+@click.argument("local_path", type=click.Path(exists=True))
 @click.argument("path", type=str)
-def put_path(ctx, file, path):
-    ctx.obj['api'].upload_file(file, path)
+@click.option("--recursive", "-r", is_flag=True)
+def put_path(ctx, local_path, path, recursive):
+    if os.path.isfile(local_path):        
+        ctx.obj['api'].upload_file(local_path, path)
+    else:
+        if recursive:
+            ctx.obj['api'].upload_dir(local_path, path)
+        else:
+            logger.error("can't upload directory without --recursive flag")
 
 
 def main():
