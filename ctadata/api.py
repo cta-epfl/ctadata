@@ -94,6 +94,7 @@ class APIClient:
 
         with open(local_fn, "rb") as f:
             r = requests.post(url, data=f, params={'token': self.token, 'ctadata_version': __version__}, stream=True)
+            logger.info("upload result: %s %s", r, r.json())
 
         if r.status_code != 200:
             logger.error("error: %s", r.text)
