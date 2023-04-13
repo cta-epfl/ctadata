@@ -1,21 +1,23 @@
 import logging
 import click
 
-from .api import list_dir, fetch_and_save_file
-
+from .api import APIClient
 
 
 logger = logging.getLogger(__name__)
 
 @click.group
-def main():
+@click.pass_context
+def main(ctx):
+    ctx.obj['api'] = APIClient()
     logging.basicConfig(level='INFO')
 
 
 @main.command("list")
+@click.pass_context
 @click.argument("path", type=str)
-def list_path(path):
-    r = list_dir(path)
+def list_path(ctx, path):
+    r = ctx.obj['api'].list_dir(path)
 
     if isinstance(r, list):
         for fn in r:
@@ -25,6 +27,15 @@ def list_path(path):
 
 
 @main.command("get")
+@click.pass_context
 @click.argument("path", type=str)
-def get_path(path):
-    fetch_and_save_file(path)
+def get_path(ctx, path):
+    ctx.obj['api'].fetch_and_save_file(path)
+
+
+@main.command("put")
+@click.pass_context
+@click.argument("file", type=click.Path(exists=True))
+@click.argument("path", type=str)
+def put_path(ctx, file, path):
+    ctx.obj['api'].upload_file(file, path)

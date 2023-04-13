@@ -13,12 +13,13 @@ class StorageException(Exception):
 
 # TODO: move to bravado and rest
 class APIClient:
-    __export_functions__ = ['list_dir', 'fetch_and_save_file']
+    __export_functions__ = ['list_dir', 'fetch_and_save_file', 'upload_file']
     __class_args__ = ['token', 'downloadservice', 'data_root', 'optional_url_parts', 'chunk_size']
 
     downloadservice = os.getenv("CTADS_URL", "http://hub:5000/services/downloadservice/")
     optional_url_parts = ["services/downloadservice/"]
-    chunk_size = 1024 * 1024
+    
+    chunk_size = 10 * 1024 * 1024
 
     @property
     def token(self):
@@ -85,6 +86,19 @@ class APIClient:
                 i_chunk += 1
 
         return total_wrote
+    
 
+    def upload_file(self, local_fn, path):
+        url = self.construct_endpoint_url('upload', path)
+        logger.info("uploading %s to %s", local_fn, url)
+
+        with open(local_fn, "rb") as f:
+            r = requests.post(url, data=f, params={'token': self.token, 'ctadata_version': __version__}, stream=True)
+
+        if r.status_code != 200:
+            logger.error("error: %s", r.text)
+            raise StorageException(r.text)
+
+        return r.json()
 
 api_client = APIClient()
