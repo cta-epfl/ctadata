@@ -1,4 +1,5 @@
 import os
+import time
 from urllib.parse import urljoin
 import requests
 import logging
@@ -66,10 +67,22 @@ class APIClient:
 
 
     def fetch_and_save_file(self, path, save_to_fn=None):
+        fileinfo = self.get_endpoint('list', path)
+        if fileinfo.status_code not in [200, 207]:
+            logger.error("error: %s", fileinfo.text)
+            raise StorageException(fileinfo.text)
+        
+        fileinfo = fileinfo.json()[0]
+        filesize = int(fileinfo['size'])
+
         total_wrote = 0
 
         if save_to_fn is None:
             save_to_fn = path.split("/")[-1]
+
+        last_pc = 0
+
+        t0 = time.time()
 
         with open(save_to_fn, "wb") as out_file:
             # with get(url, token, downloadservice, stream=True) as f:          
@@ -80,8 +93,12 @@ class APIClient:
             i_chunk = 0
             
             for r in f.iter_content(chunk_size=self.chunk_size):
-                logger.info("wrote %s Mb in %s chunks", total_wrote/1024/1024, i_chunk)
-                out_file.write(r)                
+                pc = int(total_wrote / filesize * 100)
+                if pc > last_pc:
+                    logger.info("wrote %.2f / %.2f Mb in %d chunks in %.2f seconds", total_wrote/1024/1024, filesize/1024/1024, i_chunk, time.time() - t0)
+                    last_pc = pc
+                    
+                out_file.write(r)
                 total_wrote += len(r)
                 i_chunk += 1
 
@@ -93,7 +110,15 @@ class APIClient:
         logger.info("uploading %s to %s", local_fn, url)
 
         with open(local_fn, "rb") as f:
-            r = requests.post(url, data=f, params={'token': self.token, 'ctadata_version': __version__}, stream=True)
+            stats = {'total_size': 0}
+
+            def generate(stats):
+                while r := f.read(self.chunk_size):
+                    stats['total_size'] += len(r)
+                    logger.info("uploaded %s Mb", stats['total_size']/1024/1024)
+                    yield r
+
+            r = requests.post(url, data=generate(stats), params={'token': self.token, 'ctadata_version': __version__}, stream=True)
             logger.info("upload result: %s %s", r, r.json())
 
         if r.status_code != 200:
