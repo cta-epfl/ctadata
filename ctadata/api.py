@@ -119,12 +119,12 @@ class APIClient:
                     yield r
 
             r = requests.post(url, data=generate(stats), params={'token': self.token, 'ctadata_version': __version__}, stream=True)
-            logger.info("upload result: %s %s", r, r.json())
-
+            
         if r.status_code != 200:
             logger.error("error: %s", r.text)
             raise StorageException(r.text)
 
+        logger.info("upload result: %s %s", r, r.json())
         return r.json()
 
 api_client = APIClient()
