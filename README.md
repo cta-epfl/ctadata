@@ -13,7 +13,7 @@ This client presents an API access to these services and data.
 ## Installation
 
 ```bash
-$ pip install 'ctadata>=0.1.14'
+$ pip install 'ctadata>=0.2.6'
 ```
 
 ## Usage from within CTA CSCS JupyterHub platform
@@ -35,10 +35,10 @@ To download a file:
 ctadata.fetch_and_save_file_or_dir("lst/some-data-dir", recursive=True)
 ```
 
-or
+or, in bash and recursively:
 
 ```bash
-ctadata get -r lst/some-data-dir
+ctadata get --recursive lst/some-data-dir
 ```
 
 ### Uploading files
