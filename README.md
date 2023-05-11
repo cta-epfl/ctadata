@@ -29,6 +29,18 @@ for url in ctadata.list_dir("cta/DL1/20241114/v0.1/"):
         print("found keys", h5py.File(url.split("/")[-1]).keys())
 ```
 
+To download a file:
+
+```python
+ctadata.fetch_and_save_file_or_dir("lst/some-data-dir", recursive=True)
+```
+
+or
+
+```bash
+ctadata get -r lst/some-data-dir
+```
+
 ### Uploading files
 
 To upload a file:

@@ -14,7 +14,7 @@ class StorageException(Exception):
 
 # TODO: move to bravado and rest
 class APIClient:
-    __export_functions__ = ['list_dir', 'fetch_and_save_file', 'upload_file', 'upload_dir']
+    __export_functions__ = ['list_dir', 'fetch_and_save_file', 'upload_file', 'upload_dir', 'fetch_and_save_file_or_dir']
     __class_args__ = ['token', 'downloadservice', 'data_root', 'optional_url_parts', 'chunk_size']
 
     downloadservice = os.getenv("CTADS_URL", "http://hub:5000/services/downloadservice/")
