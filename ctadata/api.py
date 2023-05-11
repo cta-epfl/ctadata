@@ -103,7 +103,22 @@ class APIClient:
                 i_chunk += 1
 
         return total_wrote
-    
+
+
+    def fetch_and_save_file_or_dir(self, path, recursive=False):
+        if not recursive:
+            return self.fetch_and_save_file(path)
+        else:
+            for entry in self.list_dir(path):
+                if entry['href'] != path:
+                    if entry['type'] == 'file':
+                        logger.info("fetching file %s", entry['href'])
+                        self.fetch_and_save_file(entry['href'], save_to_fn=entry['href'])
+                    else:
+                        logger.info("fetching dir %s", entry['href'])
+                        os.makedirs(entry['href'], exist_ok=True)
+                        self.fetch_and_save_file_or_dir(entry['href'], recursive=True)
+
 
     def upload_file(self, local_fn, path):
         url = self.construct_endpoint_url('upload', path)

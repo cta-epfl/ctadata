@@ -32,9 +32,10 @@ def list_path(ctx, path):
 @cli.command("get")
 @click.pass_context
 @click.argument("path", type=str)
-def get_path(ctx, path):
-    ctx.obj['api'].fetch_and_save_file(path)
-
+@click.option("--recursive", "-r", is_flag=True)
+def get_path(ctx, path, recursive):
+    ctx.obj['api'].fetch_and_save_file_or_dir(path, recursive=recursive)
+    
 
 @cli.command("put")
 @click.pass_context
@@ -53,3 +54,7 @@ def put_path(ctx, local_path, path, recursive):
 
 def main():
     cli(obj={})
+
+
+if __name__ == "__main__":
+    main()
