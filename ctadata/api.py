@@ -51,20 +51,37 @@ class APIClient:
         return requests.get(full_url, params=params, stream=stream)
         
 
-    def list_dir(self, path, token=None, downloadservice=None):
+    def list_dir(self, path, token=None, downloadservice=None, recursive=False):
+        if recursive:
+            self.list_dir_recursive(path)
+
         r = self.get_endpoint('list', path)
 
         if r.status_code != 200:
             logger.error("error: %s", r.text)
             raise StorageException(r.text)
-
         
         try:
             return r.json()                        
         except Exception as e:
             logger.error("error: %s", e)
             raise
-
+    
+    def list_dir_recursive(self, path, pre='', maxfiles=20):
+        files = self.list_dir(path)
+        if len(files) != 1:
+            for counter, item in enumerate(files[1:]):
+                filename = os.path.basename(item['href'].strip('/'))
+                if counter == len(files) - 2:   
+                    print(pre + f"└── {filename} ({len(self.list_dir(item['href']))})" )
+                    lenth = len(self.list_dir(item['href']))
+                    if lenth != 1 and lenth < maxfiles:
+                        self.list_dir_recursive(item['href'], pre+'    ')
+                else:
+                    print(pre + f"├── {filename} ({len(self.list_dir(item['href']))})" )
+                    lenth = len(self.list_dir(item['href']))
+                    if lenth != 1 and lenth < maxfiles:
+                        self.list_dir_recursive(item['href'], pre+'│   ')
 
     def fetch_and_save_file(self, path, save_to_fn=None):
         fileinfo = self.get_endpoint('list', path)
