@@ -9,18 +9,27 @@ logger = logging.getLogger(__name__)
 
 @click.group
 @click.pass_context
-def cli(ctx):
+@click.option("--debug", "-d", is_flag=True)
+@click.option("--quiet", "-q", is_flag=True)
+def cli(ctx, debug, quiet):
     ctx.obj['api'] = APIClient()
     ctx.obj['api'].token = os.getenv("JUPYTERHUB_API_TOKEN")
     ctx.obj['api'].downloadservice = os.getenv("CTADS_URL", "http://hub:5000/services/downloadservice/")
-    logging.basicConfig(level='INFO')
+
+    if debug:
+        logging.basicConfig(level='DEBUG')
+    elif quiet:
+        logging.basicConfig(level='ERROR')
+    else:
+        logging.basicConfig(level='INFO')
 
 
 @cli.command("list")
 @click.pass_context
 @click.argument("path", type=str)
-def list_path(ctx, path):
-    r = ctx.obj['api'].list_dir(path)
+@click.option("--recursive", "-r", is_flag=True)
+def list_path(ctx, path, recursive):
+    r = ctx.obj['api'].list_dir(path, recursive=recursive)
 
     if isinstance(r, list):
         for fn in r:
