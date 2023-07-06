@@ -1,18 +1,18 @@
 import logging
 import os
 import click
-
 from .api import APIClient
 
-
 logger = logging.getLogger(__name__)
+
 
 @click.group
 @click.pass_context
 def cli(ctx):
     ctx.obj['api'] = APIClient()
     ctx.obj['api'].token = os.getenv("JUPYTERHUB_API_TOKEN")
-    ctx.obj['api'].downloadservice = os.getenv("CTADS_URL", "http://hub:5000/services/downloadservice/")
+    ctx.obj['api'].downloadservice = os.getenv(
+        "CTADS_URL", "http://hub:5000/services/downloadservice/")
     logging.basicConfig(level='INFO')
 
 
@@ -35,7 +35,7 @@ def list_path(ctx, path):
 @click.option("--recursive", "-r", is_flag=True)
 def get_path(ctx, path, recursive):
     ctx.obj['api'].fetch_and_save_file_or_dir(path, recursive=recursive)
-    
+
 
 @cli.command("put")
 @click.pass_context
@@ -43,7 +43,7 @@ def get_path(ctx, path, recursive):
 @click.argument("path", type=str)
 @click.option("--recursive", "-r", is_flag=True)
 def put_path(ctx, local_path, path, recursive):
-    if os.path.isfile(local_path):        
+    if os.path.isfile(local_path):
         ctx.obj['api'].upload_file(local_path, path)
     else:
         if recursive:
