@@ -1,7 +1,7 @@
-import os
-import time
-import requests
 import logging
+import os
+import requests
+import time
 from .util import urljoin_multipart
 from . import __version__
 
@@ -101,9 +101,10 @@ class APIClient:
             for r in f.iter_content(chunk_size=self.chunk_size):
                 pc = int(total_wrote / filesize * 100)
                 if pc > last_pc:
-                    logger.info("wrote %.2f / %.2f Mb in %d chunks in %.2f seconds",
-                                total_wrote/1024/1024, filesize/1024/1024,
-                                i_chunk, time.time() - t0)
+                    logger.info(
+                        "wrote %.2f / %.2f Mb in %d chunks in %.2f seconds",
+                        total_wrote/1024/1024, filesize/1024/1024,
+                        i_chunk, time.time() - t0)
                     last_pc = pc
 
                 out_file.write(r)
@@ -142,10 +143,16 @@ class APIClient:
                                 stats['total_size']/1024/1024)
                     yield r
 
-            r = requests.post(url, data=generate(stats), params={
-                              'token': self.token,
-                              'ctadata_version': __version__
-                              }, stream=True)
+            file_stats = os.stat(local_fn)
+            r = requests.post(url,
+                              data=generate(stats), stream=True,
+                              headers={
+                                  "Content-Length": str(file_stats),
+                                  "HTTP_USER_AGENT": "CTADATA-"+__version__,
+                                  "AUTHORIZATION": "Bearer "+self.token,
+                              },
+                              # To be removed
+                              params={'token': self.token})
 
         if r.status_code != 200:
             logger.error("error: %s", r.text)

@@ -1,6 +1,6 @@
+import click
 import logging
 import os
-import click
 from .api import APIClient
 
 logger = logging.getLogger(__name__)
