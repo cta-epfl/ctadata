@@ -1,10 +1,13 @@
+import httpx
 import logging
 import os
 import requests
 import time
 from .util import urljoin_multipart
-from . import __version__
+from webdav4.client import Client
 
+import importlib.metadata
+__version__ = importlib.metadata.version("ctadata")
 
 logger = logging.getLogger(__name__)
 
@@ -12,13 +15,22 @@ logger = logging.getLogger(__name__)
 class StorageException(Exception):
     pass
 
+
+class CertificateError(Exception):
+    def __init__(self, message="invalid certificate"):
+        self.message = message
+        super().__init__(self.message)
+
+
 # TODO: move to bravado and rest
 
 
 class APIClient:
     __export_functions__ = ['list_dir', 'fetch_and_save_file',
                             'upload_file', 'upload_dir',
-                            'fetch_and_save_file_or_dir']
+                            'fetch_and_save_file_or_dir',
+                            'upload_certificate', 'upload_admin_certificate',
+                            'webdav4_client']
     __class_args__ = ['token', 'downloadservice',
                       'data_root', 'optional_url_parts', 'chunk_size']
 
@@ -57,6 +69,22 @@ class APIClient:
         }
 
         return requests.get(full_url, params=params, stream=stream)
+
+    def webdav4_client(self):
+        class HeaderAuth(httpx.Auth):
+            def __init__(self, token):
+                self.token = token
+
+            def auth_flow(self, request):
+                # Send the request, with a custom `X-Authentication` header.
+                request.headers['Authorization'] = 'Bearer '+self.token
+                yield request
+
+        client = Client(
+            self.construct_endpoint_url('webdav', '/'),
+            auth=HeaderAuth(self.token)
+        )
+        return client
 
     def list_dir(self, path, token=None, downloadservice=None):
         r = self.get_endpoint('list', path)
@@ -112,6 +140,50 @@ class APIClient:
                 i_chunk += 1
 
         return total_wrote
+
+    def upload_certificate(self, certificate_file):
+        try:
+            certificate = open(certificate_file, 'r').read()
+        except FileNotFoundError:
+            raise FileNotFoundError('Certificat file not found')
+
+        url = self.construct_endpoint_url('upload-cert', '/')
+        r = requests.post(url,
+                          json={'certificate': certificate},
+                          headers={
+                              "HTTP_USER_AGENT": "CTADATA-"+__version__,
+                              "AUTHORIZATION": "Bearer "+self.token,
+                          })
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise CertificateError(r.text)
+
+    def upload_admin_certificate(self, certificate_file, ca_bundle_file=None):
+        try:
+            data = {
+                'certificate': open(certificate_file, 'r').read()
+            }
+        except FileNotFoundError:
+            raise FileNotFoundError('Certificat file not found')
+
+        if ca_bundle_file is not None:
+            try:
+                data['cabundle'] = open(certificate_file, 'r').read()
+            except FileNotFoundError:
+                raise FileNotFoundError('cabundle file not found')
+
+        url = self.construct_endpoint_url('upload-main-cert', '')
+        r = requests.post(url,
+                          json=data,
+                          headers={
+                              "HTTP_USER_AGENT": "CTADATA-"+__version__,
+                              "AUTHORIZATION": "Bearer "+self.token,
+                          })
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise CertificateError(r.text)
 
     def fetch_and_save_file_or_dir(self, path, recursive=False):
         if not recursive:

@@ -1,7 +1,7 @@
 from .api import APIClient
-__version__ = "0.0.1"
-
 import logging
+import importlib.metadata
+__version__ = importlib.metadata.version("ctadata")
 
 logger = logging.getLogger(__name__)
 
