@@ -17,9 +17,7 @@ class StorageException(Exception):
 
 
 class CertificateError(Exception):
-    def __init__(self, message="invalid certificate"):
-        self.message = message
-        super().__init__(self.message)
+    pass
 
 
 # TODO: move to bravado and rest
