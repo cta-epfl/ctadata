@@ -108,7 +108,9 @@ client.uploadFile("example.txt", "remote/example.txt")
 
 Please see [WebDAV4 documenation](https://skshetry.github.io/webdav4/) for details on it's wide range of features.
 
-# Uploading a certificate to access the webdav
+# Delegating a proxy grid certificate to the Platform
+
+In order to make use of your own grid certificate to access CTA-CSCS storage from within CTA interactive platform it is necessary to upload you short-term proxy certificate to the platform. `cta-data` provides an easy way to do this:
 
 This tools also offers a way to upload your own time limited certificate to access the background webdav server.
 
