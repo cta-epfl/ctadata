@@ -77,7 +77,7 @@ class APIClient:
 
             def auth_flow(self, request):
                 # Send the request, with a custom `X-Authentication` header.
-                request.headers['Authorization'] = 'Bearer '+self.token
+                request.headers['Authorization']='Bearer '+(self.token or '')
                 yield request
 
         client = Client(
@@ -152,7 +152,7 @@ class APIClient:
                           json={'certificate': certificate},
                           headers={
                               "HTTP_USER_AGENT": "CTADATA-"+__version__,
-                              "AUTHORIZATION": "Bearer "+self.token,
+                              "AUTHORIZATION": 'Bearer '+(self.token or ''),
                           })
         if r.status_code == 200:
             return r.json()
@@ -178,7 +178,7 @@ class APIClient:
                           json=data,
                           headers={
                               "HTTP_USER_AGENT": "CTADATA-"+__version__,
-                              "AUTHORIZATION": "Bearer "+self.token,
+                              "AUTHORIZATION": 'Bearer '+(self.token or ''),
                           })
         if r.status_code == 200:
             return r.json()
@@ -219,9 +219,8 @@ class APIClient:
             r = requests.post(url,
                               data=generate(stats), stream=True,
                               headers={
-                                  "Content-Length": str(file_stats),
                                   "HTTP_USER_AGENT": "CTADATA-"+__version__,
-                                  "AUTHORIZATION": "Bearer "+self.token,
+                                  "AUTHORIZATION": 'Bearer '+(self.token or ''),
                               },
                               # To be removed
                               params={'token': self.token})

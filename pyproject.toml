@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ctadata"
-version = "0.2.6"
+version = "0.2.8"
 description = ""
 authors = ["Volodymyr Savchenko <contact@volodymyrsavchenko.com>"]
 readme = "README.md"
