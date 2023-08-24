@@ -77,7 +77,8 @@ class APIClient:
 
             def auth_flow(self, request):
                 # Send the request, with a custom `X-Authentication` header.
-                request.headers['Authorization']='Bearer '+(self.token or '')
+                request.headers['Authorization'] = \
+                    'Bearer '+(self.token or '')
                 yield request
 
         client = Client(
