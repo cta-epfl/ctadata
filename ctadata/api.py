@@ -52,7 +52,7 @@ class APIClient:
         self._token = value
 
     def construct_endpoint_url(self, endpoint, path):
-        # downloadservice = self.downloadservice.replace("http://", "https://")
+        # downloadservice = self.downloadservice.replace("http://","https://")
         downloadservice = self.downloadservice
 
         return urljoin_multipart(downloadservice, endpoint, path)
@@ -76,7 +76,6 @@ class APIClient:
                 self.token = token
 
             def auth_flow(self, request):
-                # Send the request, with a custom `X-Authentication` header.
                 request.headers['Authorization'] = \
                     'Bearer '+(self.token or '')
                 yield request
@@ -216,15 +215,15 @@ class APIClient:
                                 stats['total_size']/1024/1024)
                     yield r
 
-            file_stats = os.stat(local_fn)
-            r = requests.post(url,
-                              data=generate(stats), stream=True,
-                              headers={
-                                  "HTTP_USER_AGENT": "CTADATA-"+__version__,
-                                  "AUTHORIZATION": 'Bearer '+(self.token or ''),
-                              },
-                              # To be removed
-                              params={'token': self.token})
+            r = requests.post(
+                url,
+                data=generate(stats), stream=True,
+                headers={
+                    "HTTP_USER_AGENT": "CTADATA-"+__version__,
+                    "AUTHORIZATION": 'Bearer '+(self.token or ''),
+                },
+                # To be removed
+                params={'token': self.token})
 
         if r.status_code != 200:
             logger.error("error: %s", r.text)
