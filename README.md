@@ -13,7 +13,7 @@ This client presents an API access to these services and data.
 ## Installation
 
 ```bash
-$ pip install 'ctadata>=0.2.6'
+pip install 'ctadata>=0.2.6'
 ```
 
 ## Usage from within CTA CSCS JupyterHub platform
@@ -51,10 +51,12 @@ ctadata.upload_file("latest", "filelists/latest-file-list")
 
 The result is:
 
-```
-{'path': 'lst/users/volodymyr_savchenko_epfl_ch/filelists/latest-file-list',
- 'status': 'uploaded',
- 'total_written': 60098730}
+```json
+{
+    "path": "lst/users/volodymyr_savchenko_epfl_ch/filelists/latest-file-list",
+    "status": "uploaded",
+    "total_written": 60098730
+}
 ```
 
 Note that for every user, the file is uploaded to their own directory constructed from the user name. The path specified is relative to this directory. If you need to move the files to common directories, please as support.  But you likely want to just share returned path to be used as so:
@@ -117,4 +119,6 @@ This tools also offers a way to upload your own time limited certificate to acce
 ```python
 import ctadata
 ctadata.upload_certificate('yourcertificate.crt')
+```
+
 Note that if you do not upload your own certificate, you can ask to make use of a shared robot certificate used for data syncing.
