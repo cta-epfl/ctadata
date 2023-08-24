@@ -81,7 +81,7 @@ class APIClient:
                 yield request
 
         client = Client(
-            self.construct_endpoint_url('webdav', '/'),
+            self.construct_endpoint_url('webdav', None),
             auth=HeaderAuth(self.token)
         )
         return client
@@ -147,7 +147,7 @@ class APIClient:
         except FileNotFoundError:
             raise FileNotFoundError('Certificat file not found')
 
-        url = self.construct_endpoint_url('upload-cert', '/')
+        url = self.construct_endpoint_url('upload-cert', None)
         r = requests.post(url,
                           json={'certificate': certificate},
                           headers={
@@ -173,7 +173,7 @@ class APIClient:
             except FileNotFoundError:
                 raise FileNotFoundError('cabundle file not found')
 
-        url = self.construct_endpoint_url('upload-main-cert', '')
+        url = self.construct_endpoint_url('upload-main-cert', None)
         r = requests.post(url,
                           json=data,
                           headers={
