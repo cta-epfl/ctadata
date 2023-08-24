@@ -117,4 +117,4 @@ This tools also offers a way to upload your own time limited certificate to acce
 ```python
 import ctadata
 ctadata.upload_certificate('yourcertificate.crt')
-```
+Note that if you do not upload your own certificate, you can ask to make use of a shared robot certificate used for data syncing.
