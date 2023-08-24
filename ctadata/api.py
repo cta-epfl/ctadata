@@ -141,9 +141,9 @@ class APIClient:
 
         return total_wrote
 
-    def upload_certificate(self, certificate_file):
+    def upload_certificate(self, certificate_file_path):
         try:
-            certificate = open(certificate_file, 'r').read()
+            certificate = open(certificate_file_path, 'r').read()
         except FileNotFoundError:
             raise FileNotFoundError('Certificate file not found')
 
@@ -159,19 +159,20 @@ class APIClient:
         else:
             raise CertificateError(r.text)
 
-    def upload_admin_certificate(self, certificate_file, cabundle_file=None):
+    def upload_admin_certificate(self, certificate_file_path,
+                                 cabundle_file_path=None):
         try:
             data = {
-                'certificate': open(certificate_file, 'r').read()
+                'certificate': open(certificate_file_path, 'r').read()
             }
         except FileNotFoundError:
             raise FileNotFoundError('Certificat file not found')
 
-        if cabundle_file is not None:
+        if cabundle_file_path is not None:
             try:
-                data['cabundle'] = open(cabundle_file, 'r').read()
+                data['cabundle'] = open(cabundle_file_path, 'r').read()
             except FileNotFoundError:
-                raise FileNotFoundError('cabundle file not found')
+                raise FileNotFoundError('Cabundle file not found')
 
         url = self.construct_endpoint_url('upload-main-cert', None)
         r = requests.post(url,
