@@ -159,7 +159,7 @@ class APIClient:
         else:
             raise CertificateError(r.text)
 
-    def upload_admin_certificate(self, certificate_file, ca_bundle_file=None):
+    def upload_admin_certificate(self, certificate_file, cabundle_file=None):
         try:
             data = {
                 'certificate': open(certificate_file, 'r').read()
@@ -167,9 +167,9 @@ class APIClient:
         except FileNotFoundError:
             raise FileNotFoundError('Certificat file not found')
 
-        if ca_bundle_file is not None:
+        if cabundle_file is not None:
             try:
-                data['cabundle'] = open(certificate_file, 'r').read()
+                data['cabundle'] = open(cabundle_file, 'r').read()
             except FileNotFoundError:
                 raise FileNotFoundError('cabundle file not found')
 
