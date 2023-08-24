@@ -96,3 +96,23 @@ for url in ctadata.list_dir("cta/DL1/20241114/v0.1"):
         print("found keys", h5py.File(url.split("/")[-1]).keys())
 ```
 
+# Webdav Client
+
+To offer a smoother usage, `ctadata` offers a `webdav4` client, see [webdav4](https://github.com/skshetry/webdav4) for documentation.
+
+```python
+client = ctadata.webdav4_client()
+client.ls("/")
+client.uploadFile("example.txt", "remote/example.txt")
+```
+
+This clients offer more features than the basic interface.
+
+# Uploading a certificate to access the webdav
+
+This tools also offers a way to upload your own time limited certificate to access the background webdav server.
+
+```python
+import ctadata
+ctadata.upload_certificate('yourcertificate.crt')
+```
