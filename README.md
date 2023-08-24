@@ -98,7 +98,7 @@ for url in ctadata.list_dir("cta/DL1/20241114/v0.1"):
 
 # Webdav Client
 
-To offer a smoother usage, `ctadata` offers a `webdav4` client, see [webdav4](https://github.com/skshetry/webdav4) for documentation.
+In order to make use of bare WebDAV interface of the storage, `ctadata` also provides a configured `webdav4` client (see [webdav4](https://github.com/skshetry/webdav4) for documentation).
 
 ```python
 client = ctadata.webdav4_client()
