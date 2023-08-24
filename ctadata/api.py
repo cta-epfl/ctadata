@@ -145,7 +145,7 @@ class APIClient:
         try:
             certificate = open(certificate_file, 'r').read()
         except FileNotFoundError:
-            raise FileNotFoundError('Certificat file not found')
+            raise FileNotFoundError('Certificate file not found')
 
         url = self.construct_endpoint_url('upload-cert', None)
         r = requests.post(url,
