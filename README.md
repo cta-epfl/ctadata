@@ -106,7 +106,7 @@ client.ls("/")
 client.uploadFile("example.txt", "remote/example.txt")
 ```
 
-This clients offer more features than the basic interface.
+Please see [WebDAV4 documenation](https://skshetry.github.io/webdav4/) for details on it's wide range of features.
 
 # Uploading a certificate to access the webdav
 
