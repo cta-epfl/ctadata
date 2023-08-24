@@ -166,7 +166,7 @@ class APIClient:
                 'certificate': open(certificate_file_path, 'r').read()
             }
         except FileNotFoundError:
-            raise FileNotFoundError('Certificat file not found')
+            raise FileNotFoundError('Certificate file not found')
 
         if cabundle_file_path is not None:
             try:
