@@ -13,7 +13,7 @@ This client presents an API access to these services and data.
 ## Installation
 
 ```bash
-pip install 'ctadata>=0.2.6'
+$ pip install 'ctadata>=0.2.6'
 ```
 
 ## Usage from within CTA CSCS JupyterHub platform
