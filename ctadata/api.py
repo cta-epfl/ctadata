@@ -1,10 +1,13 @@
+import httpx
 import logging
 import os
 import requests
 import time
 from .util import urljoin_multipart
-from . import __version__
+from webdav4.client import Client
 
+import importlib.metadata
+__version__ = importlib.metadata.version("ctadata")
 
 logger = logging.getLogger(__name__)
 
@@ -12,13 +15,20 @@ logger = logging.getLogger(__name__)
 class StorageException(Exception):
     pass
 
+
+class CertificateError(Exception):
+    pass
+
+
 # TODO: move to bravado and rest
 
 
 class APIClient:
     __export_functions__ = ['list_dir', 'fetch_and_save_file',
                             'upload_file', 'upload_dir',
-                            'fetch_and_save_file_or_dir']
+                            'fetch_and_save_file_or_dir',
+                            'upload_certificate', 'upload_admin_certificate',
+                            'webdav4_client']
     __class_args__ = ['token', 'downloadservice',
                       'data_root', 'optional_url_parts', 'chunk_size']
 
@@ -40,7 +50,7 @@ class APIClient:
         self._token = value
 
     def construct_endpoint_url(self, endpoint, path):
-        # downloadservice = self.downloadservice.replace("http://", "https://")
+        # downloadservice = self.downloadservice.replace("http://","https://")
         downloadservice = self.downloadservice
 
         return urljoin_multipart(downloadservice, endpoint, path)
@@ -57,6 +67,22 @@ class APIClient:
         }
 
         return requests.get(full_url, params=params, stream=stream)
+
+    def webdav4_client(self):
+        class HeaderAuth(httpx.Auth):
+            def __init__(self, token):
+                self.token = token
+
+            def auth_flow(self, request):
+                request.headers['Authorization'] = \
+                    'Bearer '+(self.token or '')
+                yield request
+
+        client = Client(
+            self.construct_endpoint_url('webdav', None),
+            auth=HeaderAuth(self.token)
+        )
+        return client
 
     def list_dir(self, path, token=None, downloadservice=None):
         r = self.get_endpoint('list', path)
@@ -113,6 +139,51 @@ class APIClient:
 
         return total_wrote
 
+    def upload_certificate(self, certificate_file_path):
+        try:
+            certificate = open(certificate_file_path, 'r').read()
+        except FileNotFoundError:
+            raise FileNotFoundError('Certificate file not found')
+
+        url = self.construct_endpoint_url('upload-cert', None)
+        r = requests.post(url,
+                          json={'certificate': certificate},
+                          headers={
+                              "HTTP_USER_AGENT": "CTADATA-"+__version__,
+                              "AUTHORIZATION": 'Bearer '+(self.token or ''),
+                          })
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise CertificateError(r.text)
+
+    def upload_admin_certificate(self, certificate_file_path,
+                                 cabundle_file_path=None):
+        try:
+            data = {
+                'certificate': open(certificate_file_path, 'r').read()
+            }
+        except FileNotFoundError:
+            raise FileNotFoundError('Certificate file not found')
+
+        if cabundle_file_path is not None:
+            try:
+                data['cabundle'] = open(cabundle_file_path, 'r').read()
+            except FileNotFoundError:
+                raise FileNotFoundError('Cabundle file not found')
+
+        url = self.construct_endpoint_url('upload-main-cert', None)
+        r = requests.post(url,
+                          json=data,
+                          headers={
+                              "HTTP_USER_AGENT": "CTADATA-"+__version__,
+                              "AUTHORIZATION": 'Bearer '+(self.token or ''),
+                          })
+        if r.status_code == 200:
+            return r.json()
+        else:
+            raise CertificateError(r.text)
+
     def fetch_and_save_file_or_dir(self, path, recursive=False):
         if not recursive:
             return self.fetch_and_save_file(path)
@@ -143,16 +214,15 @@ class APIClient:
                                 stats['total_size']/1024/1024)
                     yield r
 
-            file_stats = os.stat(local_fn)
-            r = requests.post(url,
-                              data=generate(stats), stream=True,
-                              headers={
-                                  "Content-Length": str(file_stats),
-                                  "HTTP_USER_AGENT": "CTADATA-"+__version__,
-                                  "AUTHORIZATION": "Bearer "+self.token,
-                              },
-                              # To be removed
-                              params={'token': self.token})
+            r = requests.post(
+                url,
+                data=generate(stats), stream=True,
+                headers={
+                    "HTTP_USER_AGENT": "CTADATA-"+__version__,
+                    "AUTHORIZATION": 'Bearer '+(self.token or ''),
+                },
+                # To be removed
+                params={'token': self.token})
 
         if r.status_code != 200:
             logger.error("error: %s", r.text)

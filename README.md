@@ -51,10 +51,12 @@ ctadata.upload_file("latest", "filelists/latest-file-list")
 
 The result is:
 
-```
-{'path': 'lst/users/volodymyr_savchenko_epfl_ch/filelists/latest-file-list',
- 'status': 'uploaded',
- 'total_written': 60098730}
+```json
+{
+    "path": "lst/users/volodymyr_savchenko_epfl_ch/filelists/latest-file-list",
+    "status": "uploaded",
+    "total_written": 60098730
+}
 ```
 
 Note that for every user, the file is uploaded to their own directory constructed from the user name. The path specified is relative to this directory. If you need to move the files to common directories, please as support.  But you likely want to just share returned path to be used as so:
@@ -96,3 +98,27 @@ for url in ctadata.list_dir("cta/DL1/20241114/v0.1"):
         print("found keys", h5py.File(url.split("/")[-1]).keys())
 ```
 
+# Webdav Client
+
+In order to make use of bare WebDAV interface of the storage, `ctadata` also provides a configured `webdav4` client (see [webdav4](https://github.com/skshetry/webdav4) for documentation).
+
+```python
+client = ctadata.webdav4_client()
+client.ls("/")
+client.uploadFile("example.txt", "remote/example.txt")
+```
+
+Please see [WebDAV4 documenation](https://skshetry.github.io/webdav4/) for details on it's wide range of features.
+
+# Delegating a proxy grid certificate to the Platform
+
+In order to make use of your own grid certificate to access CTA-CSCS storage from within CTA interactive platform it is necessary to upload you short-term proxy certificate to the platform. `cta-data` provides an easy way to do this:
+
+This tools also offers a way to upload your own time limited certificate to access the background webdav server.
+
+```python
+import ctadata
+ctadata.upload_certificate('yourcertificate.crt')
+```
+
+Note that if you do not upload your own certificate, you can ask to make use of a shared robot certificate used for data syncing.

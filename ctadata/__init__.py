@@ -1,7 +1,7 @@
 from .api import APIClient
-__version__ = "0.0.1"
-
 import logging
+import importlib.metadata
+__version__ = importlib.metadata.version("ctadata")
 
 logger = logging.getLogger(__name__)
 
@@ -15,9 +15,10 @@ for function in APIClient.__export_functions__:
                 'calling api_client=%s with function=%s args=%s, kwargs=%s',
                 api_client, function, args, kwargs)
 
-            for args in APIClient.__class_args__:
-                if (class_arg_value := kwargs.pop(args, None)) is not None:
-                    setattr(api_client, args, class_arg_value)
+            for class_args in APIClient.__class_args__:
+                if (class_arg_value := kwargs.pop(class_args, None)) \
+                        is not None:
+                    setattr(api_client, class_args, class_arg_value)
 
             return getattr(api_client, function)(*args, **kwargs)
 
