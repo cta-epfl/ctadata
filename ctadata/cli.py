@@ -7,7 +7,7 @@ from .api import APIClient
 
 logger = logging.getLogger(__name__)
 
-@click.group
+@click.group()
 @click.pass_context
 @click.option("--debug", "-d", is_flag=True)
 @click.option("--quiet", "-q", is_flag=True)
