@@ -27,7 +27,8 @@ class APIClient:
     __export_functions__ = ['list_dir', 'fetch_and_save_file',
                             'upload_file', 'upload_dir',
                             'fetch_and_save_file_or_dir',
-                            'upload_personal_certificate', 'upload_shared_certificate',
+                            'upload_personal_certificate',
+                            'upload_shared_certificate',
                             'webdav4_client']
     __class_args__ = ['token', 'downloadservice',
                       'data_root', 'optional_url_parts', 'chunk_size']
