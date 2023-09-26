@@ -158,7 +158,7 @@ class APIClient:
             raise CertificateError(r.text)
 
     def upload_shared_certificate(self, certificate_file_path,
-                                 cabundle_file_path=None):
+                                  cabundle_file_path=None):
         try:
             data = {
                 'certificate': open(certificate_file_path, 'r').read()
