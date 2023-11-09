@@ -30,7 +30,8 @@ class APIClient:
                             'upload_personal_certificate',
                             'upload_shared_certificate',
                             'webdav4_client']
-    __class_args__ = ['token', 'downloadservice', 'certificateservice', 'chunk_size']
+    __class_args__ = ['token', 'downloadservice', 'certificateservice',
+                      'chunk_size']
 
     downloadservice = os.getenv(
         "CTADS_URL", "http://hub:5000/services/downloadservice/")
@@ -56,7 +57,8 @@ class APIClient:
         return urljoin_multipart(service, endpoint, path)
 
     def get_endpoint(self, endpoint, path, stream=False, chunk_size=None):
-        full_url = self.construct_endpoint_url(self.downloadservice, endpoint, path)
+        full_url = self.construct_endpoint_url(
+            self.downloadservice, endpoint, path)
 
         logger.info("full url: %s", full_url)
 
@@ -145,7 +147,8 @@ class APIClient:
         except FileNotFoundError:
             raise FileNotFoundError('Certificate file not found')
 
-        url = self.construct_endpoint_url(self.certificateservice, 'certificate', None)
+        url = self.construct_endpoint_url(
+            self.certificateservice, 'certificate', None)
         r = requests.post(url,
                           json={'certificate': certificate},
                           headers={
@@ -172,7 +175,8 @@ class APIClient:
             except FileNotFoundError:
                 raise FileNotFoundError('Cabundle file not found')
 
-        url = self.construct_endpoint_url(self.certificateservice, 'main-certificate', None)
+        url = self.construct_endpoint_url(
+            self.certificateservice, 'main-certificate', None)
         r = requests.post(url,
                           json=data,
                           headers={
