@@ -67,7 +67,7 @@ def upload_shared_certificate(ctx, local_cert_path, local_ca_path):
 @click.argument("local_cert_path",
                 type=click.Path(exists=True, dir_okay=False))
 def upload_personal_certificate(ctx, local_cert_path):
-    ctx.obj['api'].upload_certificate(local_cert_path)
+    ctx.obj['api'].upload_personal_certificate(local_cert_path)
 
 
 def main():
