@@ -156,6 +156,7 @@ class APIClient:
                               "AUTHORIZATION": 'Bearer '+(self.token or ''),
                           })
         if r.status_code == 200:
+            logger.info("upload result: %s %s", r, r.json())
             return r.json()
         else:
             raise CertificateError(r.text)
@@ -183,6 +184,7 @@ class APIClient:
                               "HTTP_USER_AGENT": "CTADATA-"+__version__,
                               "AUTHORIZATION": 'Bearer '+(self.token or ''),
                           })
+
         if r.status_code == 200:
             return r.json()
         else:
