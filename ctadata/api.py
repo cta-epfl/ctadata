@@ -159,20 +159,13 @@ class APIClient:
         else:
             raise CertificateError(r.text)
 
-    def upload_shared_certificate(self, certificate_file_path,
-                                  cabundle_file_path=None):
+    def upload_shared_certificate(self, certificate_file_path):
         try:
             data = {
                 'certificate': open(certificate_file_path, 'r').read()
             }
         except FileNotFoundError:
             raise FileNotFoundError('Certificate file not found')
-
-        if cabundle_file_path is not None:
-            try:
-                data['cabundle'] = open(cabundle_file_path, 'r').read()
-            except FileNotFoundError:
-                raise FileNotFoundError('Cabundle file not found')
 
         url = self.construct_endpoint_url('upload-main-cert', None)
         r = requests.post(url,
