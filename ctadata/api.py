@@ -156,24 +156,18 @@ class APIClient:
                               "AUTHORIZATION": 'Bearer '+(self.token or ''),
                           })
         if r.status_code == 200:
+            logger.info("upload result: %s %s", r, r.json())
             return r.json()
         else:
             raise CertificateError(r.text)
 
-    def upload_shared_certificate(self, certificate_file_path,
-                                  cabundle_file_path=None):
+    def upload_shared_certificate(self, certificate_file_path):
         try:
             data = {
                 'certificate': open(certificate_file_path, 'r').read()
             }
         except FileNotFoundError:
             raise FileNotFoundError('Certificate file not found')
-
-        if cabundle_file_path is not None:
-            try:
-                data['cabundle'] = open(cabundle_file_path, 'r').read()
-            except FileNotFoundError:
-                raise FileNotFoundError('Cabundle file not found')
 
         url = self.construct_endpoint_url(
             self.certificateservice, 'main-certificate', None)
@@ -183,6 +177,7 @@ class APIClient:
                               "HTTP_USER_AGENT": "CTADATA-"+__version__,
                               "AUTHORIZATION": 'Bearer '+(self.token or ''),
                           })
+
         if r.status_code == 200:
             return r.json()
         else:

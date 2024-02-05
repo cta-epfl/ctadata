@@ -56,10 +56,8 @@ def put_path(ctx, local_path, path, recursive):
 @click.pass_context
 @click.argument("local_cert_path",
                 type=click.Path(exists=True, dir_okay=False))
-@click.argument("local_ca_path",
-                type=click.Path(exists=True, dir_okay=False))
-def upload_shared_certificate(ctx, local_cert_path, local_ca_path):
-    ctx.obj['api'].upload_shared_certificate(local_cert_path, local_ca_path)
+def upload_shared_certificate(ctx, local_cert_path):
+    ctx.obj['api'].upload_shared_certificate(local_cert_path)
 
 
 @cli.command("upload-personal-certificate")
@@ -67,7 +65,7 @@ def upload_shared_certificate(ctx, local_cert_path, local_ca_path):
 @click.argument("local_cert_path",
                 type=click.Path(exists=True, dir_okay=False))
 def upload_personal_certificate(ctx, local_cert_path):
-    ctx.obj['api'].upload_certificate(local_cert_path)
+    ctx.obj['api'].upload_personal_certificate(local_cert_path)
 
 
 def main():
