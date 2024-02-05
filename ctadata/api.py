@@ -30,13 +30,11 @@ class APIClient:
                             'upload_personal_certificate',
                             'upload_shared_certificate',
                             'webdav4_client']
-    __class_args__ = ['token', 'downloadservice', 'certificateservice',
-                      'chunk_size']
+    __class_args__ = ['token', 'downloadservice',
+                      'data_root', 'optional_url_parts', 'chunk_size']
 
     downloadservice = os.getenv(
         "CTADS_URL", "http://hub:5000/services/downloadservice/")
-    certificateservice = os.getenv(
-        "CTACS_URL", "http://hub:5001/services/certificateservice/")
     optional_url_parts = ["services/downloadservice/"]
 
     chunk_size = 10 * 1024 * 1024
@@ -52,13 +50,14 @@ class APIClient:
     def token(self, value):
         self._token = value
 
-    def construct_endpoint_url(self, service, endpoint, path):
-        # https_service = service.replace("http://","https://")
-        return urljoin_multipart(service, endpoint, path)
+    def construct_endpoint_url(self, endpoint, path):
+        # downloadservice = self.downloadservice.replace("http://","https://")
+        downloadservice = self.downloadservice
+
+        return urljoin_multipart(downloadservice, endpoint, path)
 
     def get_endpoint(self, endpoint, path, stream=False, chunk_size=None):
-        full_url = self.construct_endpoint_url(
-            self.downloadservice, endpoint, path)
+        full_url = self.construct_endpoint_url(endpoint, path)
 
         logger.info("full url: %s", full_url)
 
@@ -81,7 +80,7 @@ class APIClient:
                 yield request
 
         client = Client(
-            self.construct_endpoint_url(self.downloadservice, 'webdav', None),
+            self.construct_endpoint_url('webdav', None),
             auth=HeaderAuth(self.token)
         )
         return client
@@ -147,8 +146,7 @@ class APIClient:
         except FileNotFoundError:
             raise FileNotFoundError('Certificate file not found')
 
-        url = self.construct_endpoint_url(
-            self.certificateservice, 'certificate', None)
+        url = self.construct_endpoint_url('upload-cert', None)
         r = requests.post(url,
                           json={'certificate': certificate},
                           headers={
@@ -169,8 +167,7 @@ class APIClient:
         except FileNotFoundError:
             raise FileNotFoundError('Certificate file not found')
 
-        url = self.construct_endpoint_url(
-            self.certificateservice, 'main-certificate', None)
+        url = self.construct_endpoint_url('upload-main-cert', None)
         r = requests.post(url,
                           json=data,
                           headers={
@@ -200,7 +197,7 @@ class APIClient:
                             entry['href'], recursive=True)
 
     def upload_file(self, local_fn, path):
-        url = self.construct_endpoint_url(self.downloadservice, 'upload', path)
+        url = self.construct_endpoint_url('upload', path)
         logger.info("uploading %s to %s", local_fn, url)
 
         with open(local_fn, "rb") as f:
