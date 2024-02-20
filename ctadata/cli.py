@@ -12,9 +12,11 @@ def cli(ctx):
     ctx.obj['api'] = APIClient()
     ctx.obj['api'].token = os.getenv("JUPYTERHUB_API_TOKEN")
     ctx.obj['api'].downloadservice = os.getenv(
-        "CTADS_URL", "https://platform.cta.cscs.ch/services/downloadservice/")
+        "CTADS_URL",
+        "https://platform.cta.cscs.ch/services/downloadservice/")
     ctx.obj['api'].certificateservice = os.getenv(
-        "CTACS_URL", "https://platform.cta.cscs.ch/services/certificateservice/")
+        "CTACS_URL",
+        "https://platform.cta.cscs.ch/services/certificateservice/")
     logging.basicConfig(level='INFO')
 
 
