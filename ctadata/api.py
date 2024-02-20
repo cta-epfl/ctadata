@@ -34,9 +34,10 @@ class APIClient:
                       'chunk_size']
 
     downloadservice = os.getenv(
-        "CTADS_URL", "http://hub:5000/services/downloadservice/")
+        "CTADS_URL", "https://platform.cta.cscs.ch/services/downloadservice/")
     certificateservice = os.getenv(
-        "CTACS_URL", "http://hub:5001/services/certificateservice/")
+        "CTACS_URL",
+        "https://platform.cta.cscs.ch/services/certificateservice/")
     optional_url_parts = ["services/downloadservice/"]
 
     chunk_size = 10 * 1024 * 1024
@@ -68,7 +69,9 @@ class APIClient:
             'chunk_size': chunk_size
         }
 
-        return requests.get(full_url, params=params, stream=stream)
+        return requests.get(
+            full_url, params=params, stream=stream,
+            headers={'Authorization': 'Bearer ' + (self.token or '')})
 
     def webdav4_client(self):
         class HeaderAuth(httpx.Auth):
@@ -86,7 +89,7 @@ class APIClient:
         )
         return client
 
-    def list_dir(self, path, token=None, downloadservice=None):
+    def list_dir(self, path):
         r = self.get_endpoint('list', path)
 
         if r.status_code != 200:

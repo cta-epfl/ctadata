@@ -10,6 +10,7 @@ CTA data are/will be stored at CTAO-CH data center at CSCS.
 These data should be accessible for selected external users.
 In addition, these files should be available within interactive analysis platform at CSCS.
 This client presents an API access to these services and data.
+
 ## Installation
 
 ```bash
@@ -53,13 +54,13 @@ The result is:
 
 ```json
 {
-    "path": "lst/users/volodymyr_savchenko_epfl_ch/filelists/latest-file-list",
-    "status": "uploaded",
-    "total_written": 60098730
+  "path": "lst/users/volodymyr_savchenko_epfl_ch/filelists/latest-file-list",
+  "status": "uploaded",
+  "total_written": 60098730
 }
 ```
 
-Note that for every user, the file is uploaded to their own directory constructed from the user name. The path specified is relative to this directory. If you need to move the files to common directories, please as support.  But you likely want to just share returned path to be used as so:
+Note that for every user, the file is uploaded to their own directory constructed from the user name. The path specified is relative to this directory. If you need to move the files to common directories, please as support. But you likely want to just share returned path to be used as so:
 
 ```python
 ctadata.fetch_and_save_file("lst/users/volodymyr_savchenko_epfl_ch/filelists/latest-file-list")
@@ -90,6 +91,7 @@ The rest is similar to the previous case:
 ```python
 import os
 os.environ["CTADS_URL"] = "DATA-DISTRIBUTING-JUPYTERHUB/services/downloadservice/"
+os.environ["CTACS_URL"] = "DATA-DISTRIBUTING-JUPYTERHUB/services/certificateservice/"
 os.environ["JUPYTERHUB_API_TOKEN"] = "INSERT-YOUR-TOKEN-HERE"
 
 for url in ctadata.list_dir("cta/DL1/20241114/v0.1"):
