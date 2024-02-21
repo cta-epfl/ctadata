@@ -47,23 +47,23 @@ ctadata get --recursive lst/some-data-dir
 To upload a file:
 
 ```python
-ctadata.upload_file("latest", "filelists/latest-file-list")
+ctadata.upload_file("latest", "filelists/new-file-name")
 ```
 
 The result is:
 
 ```json
 {
-  "path": "lst/users/volodymyr_savchenko_epfl_ch/filelists/latest-file-list",
+  "path": "lst/users/volodymyr_savchenko_epfl_ch/filelists/new-file-name",
   "status": "uploaded",
   "total_written": 60098730
 }
 ```
 
-Note that for every user, the file is uploaded to their own directory constructed from the user name. The path specified is relative to this directory. If you need to move the files to common directories, please as support. But you likely want to just share returned path to be used as so:
+Note that for every user, the file is uploaded to their own directory constructed from the user name. The path specified is relative to this directory. If you need to move the files to common directories, please ask for support. But you likely want to just share returned path to be used as so:
 
 ```python
-ctadata.fetch_and_save_file("lst/users/volodymyr_savchenko_epfl_ch/filelists/latest-file-list")
+ctadata.fetch_and_save_file("lst/users/volodymyr_savchenko_epfl_ch/filelists/new-file-name")
 ```
 
 You can also use command line interface to do this:

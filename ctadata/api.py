@@ -203,6 +203,9 @@ class APIClient:
                             entry['href'], recursive=True)
 
     def upload_file(self, local_fn, path):
+        if len(path) and path[len(path)-1] == '/' and os.path.basename(local_fn):
+            path = path+os.path.basename(local_fn)
+
         url = self.construct_endpoint_url(self.downloadservice, 'upload', path)
         logger.info("uploading %s to %s", local_fn, url)
 
