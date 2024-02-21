@@ -47,7 +47,8 @@ ctadata get --recursive lst/some-data-dir
 To upload a file:
 
 ```python
-ctadata.upload_file("latest", "filelists/new-file-name")
+ctadata.upload_file("latest.txt", "your-folder/new-file-name.md")
+ctadata.upload_file("latest.txt", "your-folder/") # will autocomplete to `your-folder/latest.txt`
 ```
 
 The result is:

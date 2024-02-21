@@ -202,7 +202,7 @@ class APIClient:
                         self.fetch_and_save_file_or_dir(
                             entry['href'], recursive=True)
 
-    def upload_file(self, local_fn, path):
+    def upload_file(self, local_fn: str, path: str):
         if len(path) and path[len(path)-1] == '/' and os.path.basename(local_fn):
             path = path+os.path.basename(local_fn)
 
