@@ -144,20 +144,27 @@ class APIClient:
 
         return total_wrote
 
-    def upload_personal_certificate(self, certificate_file_path):
+    def upload_personal_certificate(
+            self, certificate_file_path, certificate_key):
         try:
             certificate = open(certificate_file_path, 'r').read()
         except FileNotFoundError:
             raise FileNotFoundError('Certificate file not found')
 
+        allowedCertificateKeys = os.environ.get(
+            'CTACS_ALLOWED_CERTIFICATE_KEYS', 'cta,lst').split(',')
+        if certificate_key not in allowedCertificateKeys:
+            raise f"Certificate key invalid : {
+                certificate_key}, allowed ones: {allowedCertificateKeys}"
+
         url = self.construct_endpoint_url(
             self.certificateservice, 'certificate', None)
-        r = requests.post(url,
-                          json={'certificate': certificate},
-                          headers={
-                              "HTTP_USER_AGENT": "CTADATA-"+__version__,
-                              "AUTHORIZATION": 'Bearer '+(self.token or ''),
-                          })
+        r = requests.post(
+            url,
+            json={'certificate': certificate,
+                  'certificate_key': certificate_key},
+            headers={"HTTP_USER_AGENT": "CTADATA-" + __version__,
+                     "AUTHORIZATION": 'Bearer ' + (self.token or ''), })
         if r.status_code == 200:
             logger.info("upload result: %s %s", r, r.json())
             return r.json()
