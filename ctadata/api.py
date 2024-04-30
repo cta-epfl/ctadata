@@ -152,10 +152,10 @@ class APIClient:
             raise FileNotFoundError('Certificate file not found')
 
         allowedCertificateKeys = os.environ.get(
-            'CTACS_ALLOWED_CERTIFICATE_KEYS', 'cta,lst').split(',')
+            'CTACS_ALLOWED_CERT_KEYS', 'cta,lst').split(',')
         if certificate_key not in allowedCertificateKeys:
-            raise f"Certificate key invalid : {
-                certificate_key}, allowed ones: {allowedCertificateKeys}"
+            raise f"Certificate key invalid : {certificate_key}," + \
+                f" allowed ones: {allowedCertificateKeys}"
 
         url = self.construct_endpoint_url(
             self.certificateservice, 'certificate', None)
