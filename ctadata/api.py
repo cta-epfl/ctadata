@@ -152,7 +152,7 @@ class APIClient:
             raise FileNotFoundError('Certificate file not found')
 
         allowedCertificateKeys = os.environ.get(
-            'CTACS_ALLOWED_CERT_KEYS', 'cta,lst').split(',')
+            'CTACS_ALLOWED_CERT_KEYS', 'cta,lst,arc').split(',')
         if certificate_key not in allowedCertificateKeys:
             raise f"Certificate key invalid : {certificate_key}," + \
                 f" allowed ones: {allowedCertificateKeys}"
