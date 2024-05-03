@@ -68,6 +68,8 @@ def upload_shared_certificate(ctx, local_cert_path):
 @click.pass_context
 @click.argument("local_cert_path",
                 type=click.Path(exists=True, dir_okay=False))
+@click.argument("certificate_key", type=str)
+@click.option("-u", "--user", type=str)
 def upload_personal_certificate(ctx, local_cert_path, certificate_key,
                                 user=None):
     ctx.obj['api'].upload_personal_certificate(local_cert_path,
