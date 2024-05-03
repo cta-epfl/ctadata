@@ -145,7 +145,7 @@ class APIClient:
         return total_wrote
 
     def upload_personal_certificate(
-            self, certificate_file_path, certificate_key):
+            self, certificate_file_path, certificate_key, user=None):
         try:
             certificate = open(certificate_file_path, 'r').read()
         except FileNotFoundError:
@@ -162,7 +162,8 @@ class APIClient:
         r = requests.post(
             url,
             json={'certificate': certificate,
-                  'certificate_key': certificate_key},
+                  'certificate_key': certificate_key,
+                  'user': user},
             headers={"HTTP_USER_AGENT": "CTADATA-" + __version__,
                      "AUTHORIZATION": 'Bearer ' + (self.token or ''), })
         if r.status_code == 200:
