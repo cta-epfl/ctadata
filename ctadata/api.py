@@ -247,6 +247,11 @@ class APIClient:
 
     def upload_dir(self, local_dir, path):
         logger.info("uploading dir %s to %s", local_dir, path)
+        if not os.path.exists(local_dir):
+            raise FileExistsError(local_dir)
+        if not os.path.isdir(local_dir):
+            raise f"{local_dir} is not a directory"
+
         for (dirpath, dirnames, filenames) in os.walk(local_dir):
             for name in filenames:
                 fn = os.path.join(dirpath, name)
