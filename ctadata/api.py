@@ -75,7 +75,7 @@ class APIClient:
             full_url, params=params, stream=stream,
             headers={
                 'Authorization': 'Bearer ' + (self.token or ''),
-                'Content_Type': 'application/json'
+                'Content-Type': 'application/json'
             })
 
     def webdav4_client(self):
@@ -170,9 +170,9 @@ class APIClient:
                   'certificate_key': certificate_key,
                   'user': user},
             headers={
-                'Http_User_Agent': "CTADATA-" + __version__,
+                'User-Agent': "CTADATA-" + __version__,
                 'Authorization': 'Bearer ' + (self.token or ''),
-                'Content_Type': 'application/json'
+                'Content-Type': 'application/json'
             })
         if r.status_code == 200:
             logger.info("upload result: %s %s", r, r.json())
@@ -193,9 +193,9 @@ class APIClient:
         r = requests.post(url,
                           json=data,
                           headers={
-                              'Http_User_Agent': "CTADATA-"+__version__,
+                              'User-Agent': "CTADATA-"+__version__,
                               'Authorization': 'Bearer '+(self.token or ''),
-                              'Content_Type': 'application/json'
+                              'Content-Type': 'application/json'
                           })
 
         if r.status_code == 200:
@@ -241,9 +241,9 @@ class APIClient:
                 url,
                 data=generate(stats), stream=True,
                 headers={
-                    'Http_User_Agent': "CTADATA-"+__version__,
+                    'User-Agent': "CTADATA-"+__version__,
                     'Authorization': 'Bearer '+(self.token or ''),
-                    'Content_Type': 'application/json'
+                    'Content-Type': 'application/json'
                 },
                 # To be removed
                 params={'token': self.token})
