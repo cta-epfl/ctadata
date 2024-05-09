@@ -47,6 +47,8 @@ class APIClient:
         if not hasattr(self, "_token"):
             self._token = os.getenv("JUPYTERHUB_API_TOKEN")
 
+        if self._token is None or self._token == '':
+            raise Exception("Invalid jupyterhub token")
         return self._token
 
     @token.setter
@@ -71,7 +73,10 @@ class APIClient:
 
         return requests.get(
             full_url, params=params, stream=stream,
-            headers={'Authorization': 'Bearer ' + (self.token or '')})
+            headers={
+                'Authorization': 'Bearer ' + (self.token or ''),
+                'Content_Type': 'application/json'
+            })
 
     def webdav4_client(self):
         class HeaderAuth(httpx.Auth):
@@ -164,8 +169,11 @@ class APIClient:
             json={'certificate': certificate,
                   'certificate_key': certificate_key,
                   'user': user},
-            headers={"HTTP_USER_AGENT": "CTADATA-" + __version__,
-                     "AUTHORIZATION": 'Bearer ' + (self.token or ''), })
+            headers={
+                'Http_User_Agent': "CTADATA-" + __version__,
+                'Authorization': 'Bearer ' + (self.token or ''),
+                'Content_Type': 'application/json'
+            })
         if r.status_code == 200:
             logger.info("upload result: %s %s", r, r.json())
             return r.json()
@@ -185,8 +193,9 @@ class APIClient:
         r = requests.post(url,
                           json=data,
                           headers={
-                              "HTTP_USER_AGENT": "CTADATA-"+__version__,
-                              "AUTHORIZATION": 'Bearer '+(self.token or ''),
+                              'Http_User_Agent': "CTADATA-"+__version__,
+                              'Authorization': 'Bearer '+(self.token or ''),
+                              'Content_Type': 'application/json'
                           })
 
         if r.status_code == 200:
@@ -232,8 +241,9 @@ class APIClient:
                 url,
                 data=generate(stats), stream=True,
                 headers={
-                    "HTTP_USER_AGENT": "CTADATA-"+__version__,
-                    "AUTHORIZATION": 'Bearer '+(self.token or ''),
+                    'Http_User_Agent': "CTADATA-"+__version__,
+                    'Authorization': 'Bearer '+(self.token or ''),
+                    'Content_Type': 'application/json'
                 },
                 # To be removed
                 params={'token': self.token})
