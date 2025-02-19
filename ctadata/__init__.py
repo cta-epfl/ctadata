@@ -1,29 +1,29 @@
-from .api import APIClient
+from ctadata.direct_api import APIClient
 import logging
 import importlib.metadata
-__version__ = importlib.metadata.version(__package__)
+__version__ = "1.0.0" # importlib.metadata.version(__package__)
 
-logger = logging.getLogger(__name__)
+# logger = logging.getLogger(__name__)
 
-for function in APIClient.__export_functions__:
+# for function in APIClient.__export_functions__:
 
-    def decorate(function):
-        def f(*args, **kwargs):
-            api_client = APIClient()
+#     def decorate(function):
+#         def f(*args, **kwargs):
+#             api_client = APIClient()
 
-            logger.info(
-                'calling api_client=%s with function=%s args=%s, kwargs=%s',
-                api_client, function, args, kwargs)
+#             logger.info(
+#                 'calling api_client=%s with function=%s args=%s, kwargs=%s',
+#                 api_client, function, args, kwargs)
 
-            for class_args in APIClient.__class_args__:
-                if (class_arg_value := kwargs.pop(class_args, None)) \
-                        is not None:
-                    setattr(api_client, class_args, class_arg_value)
+#             for class_args in APIClient.__class_args__:
+#                 if (class_arg_value := kwargs.pop(class_args, None)) \
+#                         is not None:
+#                     setattr(api_client, class_args, class_arg_value)
 
-            return getattr(api_client, function)(*args, **kwargs)
+#             return getattr(api_client, function)(*args, **kwargs)
 
-        return f
+#         return f
 
-    globals()[function] = decorate(function)
-    logger.info('setting global function=%s to %s',
-                function, globals()[function])
+#     globals()[function] = decorate(function)
+#     logger.info('setting global function=%s to %s',
+#                 function, globals()[function])
