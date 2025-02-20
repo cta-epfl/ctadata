@@ -19,3 +19,4 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 cta-data = { callable = "ctadata.cli:main" }
+cta-data-direct = { callable = "ctadata.direct_cli:main" }

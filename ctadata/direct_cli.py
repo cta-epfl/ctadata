@@ -1,7 +1,6 @@
 import click
 import logging
-import os
-from ctadata.direct_api import APIClient
+from ctadata.direct_api import APIClient, DirectApiError
 
 logger = logging.getLogger(__name__)
 
@@ -46,8 +45,10 @@ def get_token(ctx):
 
 
 def main():
-    cli(obj={})
-
+    try:
+        cli(obj={})
+    except DirectApiError as e:
+        print(e)
 
 if __name__ == "__main__":
     main()

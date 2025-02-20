@@ -1,7 +1,7 @@
 #!/bin/bash
 
 db_name=kk-dcache-prod
-client_secret=OC5TpAsa7KUi1onOyiN2jcu0ut0nGC0g
+client_secret=`cat ${HOME}/.secret`
 empty_file=empty
 
 
