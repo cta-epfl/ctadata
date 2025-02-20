@@ -29,8 +29,8 @@ class EnvironmentError(DirectApiError):
 class APIClient:
     iss_url = 'https://keycloak.cta.cscs.ch/realms/master/'
     dcache_url = 'https://dcache.cta.cscs.ch:2880'
-    cta_token_file = Path.home() + "/.cta_token"
-    client_secret_file = Path.home() + "/.secret"
+    cta_token_file = Path.home() / "cta_token"
+    client_secret_file = Path.home() / "secret"
     token_name = "kk-dcache-prod"
     token_update_interval = '300' # in seconds
     
@@ -79,6 +79,7 @@ class APIClient:
         else:
             raise TokenError(f"Token not found in {self.cta_token_file}. Please start agent using start-agent subcommand")
         
+    @staticmethod
     def _daemonize():
         # Fork and detach process to create a daemon.
         if os.fork() > 0:
