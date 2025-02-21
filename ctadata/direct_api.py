@@ -29,8 +29,8 @@ class EnvironmentError(DirectApiError):
 class APIClient:
     iss_url = 'https://keycloak.cta.cscs.ch/realms/master/'
     dcache_url = 'https://dcache.cta.cscs.ch:2880'
-    cta_token_file = Path.home() / "cta_token"
-    client_secret_file = Path.home() / "secret"
+    cta_token_file = Path.home() / ".cta_token"
+    client_secret_file = Path.home() / ".secret"
     token_name = "kk-dcache-prod"
     token_update_interval = '300' # in seconds
     
@@ -108,7 +108,7 @@ class APIClient:
             logger.error('oidc-agent error: ' + ret.stderr)
             sys.exit(1)
         token = ret.stdout.strip()
-        with open(self.cta_token_file) as f:
+        with open(self.cta_token_file, 'wt') as f:
             print(token, file=f)
             
     def _agent_loop(self):
@@ -153,33 +153,35 @@ class APIClient:
             token_list_command = f"oidc-add -l"
             
             ret = subprocess.run(token_list_command, capture_output=True, shell=True, text=True)
+            token_loaded=False
             if self.token_name in ret.stdout: # token found
                 token_load_command = f'{token_load_command} {empty_passwd}'
                 print(token_load_command) #debug
                 
                 process = subprocess.Popen([token_load_command],
-                            stdin=subprocess.PIPE, stdout=subprocess.PIPE, 
-                            stderr=subprocess.PIPE,
                             text=True, shell=True)
                 stdout, _ = process.communicate(input="\n\n\n\n")   
+                print(token_load_command, 'exited with code', process.returncode)  # debug
                 print(stdout)  # debug
                 if process.returncode != 0:
                     logger.warning('failed to load token using command: %s', token_load_command)
                     logger.warning('command output: %s', stdout)
+                else:
+                    token_loaded = True
+            if not token_loaded:
+                gen_command = ['oidc-gen', self.token_name, '--iss', self.iss_url,
+                       f'--client-id={client_id}', '--redirect-url', redirect_url, 
+                       '--client-secret', self.secret, '--no-url-call', '--scope', scope]             
 
-                    gen_command = ['oidc-gen', self.token_name, '--iss', 'self.iss_url',
-                                   f'--client-id={client_id}', f'--redirect-url {redirect_url}', 
-                                   f'--client-secret {self.secret}', '--no-url-call', '--scope', scope]             
-
-                    gen_command += empty_passwd.split()
-                    logger.info('command: %s', gen_command)
-                    print(gen_command) # debug
-                    process = subprocess.Popen(gen_command, text=True)
-                    stdout, _ = process.communicate(input="\n\n\n\n") 
-                    print(stdout) # debug           
-                    if process.returncode != 0:
-                        logger.error('command output: %s', )
-                        raise TokenError(stdout)
+                gen_command += empty_passwd.split()
+                logger.info('command: %s', gen_command)
+                print(gen_command) # debug
+                process = subprocess.Popen(gen_command, text=True)
+                stdout, _ = process.communicate(input="\n\n\n\n") 
+                print(stdout) # debug           
+                if process.returncode != 0:
+                    logger.error('command output: %s', )
+                    raise TokenError(stdout)
             
         self._refresh_token() # make sure token can be loaded before exiting
         print('token loaded') # debug
