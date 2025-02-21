@@ -32,7 +32,7 @@ class APIClient:
     cta_token_file = Path.home() / ".cta_token"
     client_secret_file = Path.home() / ".secret"
     token_name = "kk-dcache-prod"
-    token_update_interval = '300' # in seconds
+    token_update_interval = 300 # in seconds
     
     @property
     def secret(self):
@@ -105,16 +105,20 @@ class APIClient:
         ret = subprocess.run(token_print_command, capture_output=True, 
                                  shell=True, text=True)
         if ret.returncode != 0:
-            logger.error('oidc-agent error: ' + ret.stderr)
-            sys.exit(1)
+            raise TokenError('oidc-agent error: ' + ret.stderr)
+            
         token = ret.stdout.strip()
         with open(self.cta_token_file, 'wt') as f:
             print(token, file=f)
             
     def _agent_loop(self):
-        while True:
-            self._refresh_token()
-            time.sleep(self.token_update_interval)
+        try:
+            while True:
+                self._refresh_token()
+                time.sleep(self.token_update_interval)
+        except Exception as ex:
+            with open(Path.home() / ".agent.log", 'wt') as f:
+                print(ex, file=f)
         
     def start_agent_daemon(self):
         self.init_agent()
@@ -122,7 +126,15 @@ class APIClient:
         self._agent_loop()
     
     def init_agent(self):
+        token_loaded=False
         self._verify_environment()
+        try:
+            self._refresh_token()
+            token_loaded = True
+        except TokenError:
+            pass
+        if token_loaded:
+            return
         
         client_id = "dcache-cta-cscs-ch-users"
         scope = "openid profile offline_access lst dcache-dev-audience email"
@@ -153,7 +165,7 @@ class APIClient:
             token_list_command = f"oidc-add -l"
             
             ret = subprocess.run(token_list_command, capture_output=True, shell=True, text=True)
-            token_loaded=False
+            
             if self.token_name in ret.stdout: # token found
                 token_load_command = f'{token_load_command} {empty_passwd}'
                 print(token_load_command) #debug
