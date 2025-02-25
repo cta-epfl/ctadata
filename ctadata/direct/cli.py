@@ -1,6 +1,7 @@
 import click
 import logging
-from ctadata.direct_api import APIClient, DirectApiError
+from ctadata.direct.api import APIClient, DirectApiError
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,21 @@ def list_path(ctx, path):
 @click.option("--recursive", "-r", is_flag=True)
 def get_path(ctx, path, recursive):
     ctx.obj['api'].fetch_and_save_file_or_dir(path, recursive=recursive)
+    
+    
+@cli.command("put")
+@click.pass_context
+@click.argument("local_path", type=click.Path(exists=True))
+@click.argument("path", type=str)
+@click.option("--recursive", "-r", is_flag=True)
+def put_path(ctx, local_path, path, recursive):
+    if os.path.isfile(local_path):
+        ctx.obj['api'].upload_file(local_path, path)
+    else:
+        if recursive:
+            ctx.obj['api'].upload_dir(local_path, path)
+        else:
+            logger.error("can't upload directory without --recursive flag")
 
 
 @cli.command("start-agent")

@@ -5,8 +5,6 @@ import os
 import sys
 import time
 from pathlib import Path
-import importlib.metadata
-# __version__ = importlib.metadata.version("ctadata")
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +25,13 @@ class EnvironmentError(DirectApiError):
 
 
 class APIClient:
+    __export_functions__ = ['list_dir', 'fetch_and_save_file',
+                            'upload_file', 'upload_dir',
+                            'fetch_and_save_file_or_dir',
+                            ]
+    __class_args__ = []
+    
+    
     iss_url = 'https://keycloak.cta.cscs.ch/realms/master/'
     dcache_url = 'https://dcache.cta.cscs.ch:2880'
     cta_token_file = Path.home() / ".cta_token"
@@ -61,7 +66,7 @@ class APIClient:
         return self._token
     
     def _verify_environment(self):
-        required_utils = ['oidc-agent', 'davix-ls', 'davix-get']
+        required_utils = ['oidc-agent', 'davix-ls', 'davix-get', 'davix-put']
         missing_utils = []
         for u in required_utils:
             ret = subprocess.run(f'which {u}', capture_output=False, shell=True)
@@ -254,6 +259,35 @@ class APIClient:
                     os.makedirs(dir_path, exist_ok=True)
                 print(f"saving {path} to {save_path}") # debug
                 self.fetch_and_save_file(path, save_to_fn=save_path)
+          
+                
+    def upload_file(self, local_fn: str, path: str):
+        if not path.startswith('/'):
+            path = '/' + path
+        url = self.dcache_url + path
+        logger.info("uploading %s to %s", local_fn, url)
+        
+        command = f'davix-put -k -H "Authorization: Bearer {self.token}" {local_fn} {url}'
+        ret = subprocess.run(command, capture_output=True, shell=True, text=True)
+        if ret.returncode != 0:
+            logger.error('failed to upload file using command: %s', command)
+            logger.error('command output: %s', ret.stdout)
+            logger.error('command stderr: %s', ret.stderr)
+            raise StorageException(ret.stderr) 
+        
+        
+    def upload_dir(self, local_dir, path):
+        logger.info("uploading dir %s to %s", local_dir, path)
+        if not os.path.exists(local_dir):
+            raise FileExistsError(local_dir)
+        if not os.path.isdir(local_dir):
+            raise Exception(f"{local_dir} is not a directory")
+
+        for (dirpath, dirnames, filenames) in os.walk(local_dir):
+            for name in filenames:
+                fn = os.path.join(dirpath, name)
+                self.upload_file(fn, os.path.join(
+                    path, dirpath[len(local_dir):], name))
 
 
 api_client = APIClient()

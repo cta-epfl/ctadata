@@ -1,7 +1,5 @@
-from ctadata.api import APIClient
+from ctadata.direct.api import APIClient
 import logging
-import importlib.metadata
-__version__ = importlib.metadata.version(__package__)
 
 logger = logging.getLogger(__name__)
 

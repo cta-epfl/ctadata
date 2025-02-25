@@ -125,3 +125,77 @@ ctadata.upload_certificate('yourcertificate.crt')
 ```
 
 Note that if you do not upload your own certificate, you can ask to make use of a shared robot certificate used for data syncing.
+
+# Using direct API
+
+The latest version of ctadata has direct_api module which implements direct download/upload mode without using downloadservice as proxy.
+
+## Installation
+
+Currently the direct API uses [oidc-agent](https://indigo-dc.gitbook.io/oidc-agent) tool for the token maintanance and [davix](https://github.com/cern-fts/davix) tools for downloading and uploading the files. These tools can be either compiled locally and added to PATH environment variable or installed inside [conda] (https://anaconda.org/anaconda/conda) or [mamba] (https://github.com/mamba-org/mamba) environment. Below is the example of the installation using conda package manager.
+
+```bash
+$ conda create -name ctadata # install conda environment if you don't have it
+$ conda activate ctadata # activate the environment
+$ conda install oidc-agent davix -c conda-forge # install the packages required
+$ pip install ctadata # install ctadata library in the same environment
+```
+
+##  Token maintanance
+
+To get access to CTA-CSCS storage you need to generate  OpenID Connect token. The token is temporary and needs to be updated on regular bases. This process is implemented by the token agent service which can be started by the command
+
+```bash
+$ cta-data-direct start-agent
+```
+The token is being stored in the user's home directory, so the above command needs to be started only on a single machine. During the agent initialization process an account is created for the token maintanance. The user is being asked to authenticate the account creation by visiting the authentication page in a browser on any device.
+
+## Basic usage
+
+As soon as the account creation process completes the token is created and one can start using other direct API functions.
+
+### Listing directory contents
+
+```python
+from ctadata import direct as ctadata
+
+for path in ctadata.list_dir("cta"):
+    print(path)
+```
+
+### Downloading files and directories
+
+To download contents of some file or dir:
+
+```python
+from ctadata import direct as ctadata
+
+# downloading single file
+ctadata.fetch_and_save_file_or_dir("lst/some-data-dir/some-data-file") 
+
+# recursively downloading a directory
+ctadata.fetch_and_save_file_or_dir("lst/some-data-dir", recursive=True)
+```
+
+or, in bash:
+
+```bash
+cta-data-direct get lst/some-data-dir/some-data-file
+cta-data-direct get --recursive lst/some-data-dir
+```
+
+### Uploading files and directories
+
+To upload a file:
+
+```python
+from ctadata import direct as ctadata
+ctadata.direct.upload_file("latest.txt", "your-folder/new-file-name.md")
+ctadata.direct.upload_file("latest.txt", "your-folder/") # will autocomplete to `your-folder/latest.txt`
+```
+You can also use command line interface to do this:
+
+```bash
+$ cta-data-direct put latest-file-list latest-file-list-bla-bla
+```
+
