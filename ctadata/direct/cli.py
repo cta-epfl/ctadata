@@ -31,8 +31,8 @@ def list_path(ctx, path):
 @click.option("--recursive", "-r", is_flag=True)
 def get_path(ctx, path, recursive):
     ctx.obj['api'].fetch_and_save_file_or_dir(path, recursive=recursive)
-    
-    
+
+
 @cli.command("put")
 @click.pass_context
 @click.argument("local_path", type=click.Path(exists=True))
@@ -55,8 +55,8 @@ def start_agent(ctx, secret):
     if secret:
         ctx.obj['api'].secret = secret
     ctx.obj['api'].start_agent_daemon()
-    
-    
+
+
 @cli.command("get-token")
 @click.pass_context
 @click.option("--secret", "-s", type=str)
@@ -71,6 +71,7 @@ def main():
         cli(obj={})
     except DirectApiError as e:
         print(e)
+
 
 if __name__ == "__main__":
     main()
