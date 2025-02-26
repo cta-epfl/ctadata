@@ -190,10 +190,13 @@ class APIClient:
             if not token_loaded:
                 gen_command = ['oidc-gen', self.token_name, '--iss', self.iss_url,
                        f'--client-id={client_id}', '--redirect-url', redirect_url, 
-                       '--client-secret', self.secret, '--no-url-call', '--scope', scope]             
+                       '--client-secret', self.secret, '--no-url-call', '--scope', scope]
+                gen_command_log = " ".join(['oidc-gen', self.token_name, '--iss', self.iss_url,
+                       f'--client-id={client_id}', '--redirect-url', redirect_url, 
+                       '--client-secret ****', '--no-url-call', '--scope', scope])  
 
                 gen_command += pw_file_option.split()
-                logger.info('command: %s', gen_command)
+                logger.info('command: %s', gen_command_log)
                 process = subprocess.Popen(gen_command, text=True)
                 stdout, _ = process.communicate(input="\n\n\n\n")        
                 if process.returncode != 0:
