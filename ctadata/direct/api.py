@@ -136,6 +136,7 @@ class APIClient:
         self._agent_loop()
     
     def init_agent(self):
+
         token_loaded=False
         self._verify_environment()
         try:
@@ -150,10 +151,10 @@ class APIClient:
         scope = ""
         redirect_url = ""
         # we use temporary empty file to avoid password prompts
-        with tempfile.NamedTemporaryFile() as password_file:
-            with open(password_file.name, 'wt') as out:
+        with tempfile.NamedTemporaryFile() as empty_file:
+            with open(empty_file.name, 'wt') as out:
                 print(file=out)
-            password_file_path = password_file.name
+            empty_file_path = empty_file.name
             
             variables = ['OIDCD_PID', 'OIDCD_PID_FILE', 'OIDC_SOCK']
         
@@ -169,14 +170,14 @@ class APIClient:
             for key, val in zip(variables, var_values):
                 os.environ[key] = val
             
-            empty_passwd = f'--pw-file={password_file_path}'
+            pw_file_option = f'--pw-file={empty_file_path}'
             token_load_command = f"oidc-add {self.token_name}"
             token_list_command = f"oidc-add -l"
             
             ret = subprocess.run(token_list_command, capture_output=True, shell=True, text=True)
             
             if self.token_name in ret.stdout: # token found
-                token_load_command = f'{token_load_command} {empty_passwd}'
+                token_load_command = f'{token_load_command} {pw_file_option}'
                 
                 process = subprocess.Popen([token_load_command],
                             text=True, shell=True)
@@ -191,7 +192,7 @@ class APIClient:
                        f'--client-id={client_id}', '--redirect-url', redirect_url, 
                        '--client-secret', self.secret, '--no-url-call', '--scope', scope]             
 
-                gen_command += empty_passwd.split()
+                gen_command += pw_file_option.split()
                 logger.info('command: %s', gen_command)
                 process = subprocess.Popen(gen_command, text=True)
                 stdout, _ = process.communicate(input="\n\n\n\n")        
