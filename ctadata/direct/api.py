@@ -46,7 +46,7 @@ class APIClient:
                 with open(self.client_secret_file) as f:
                     self._secret = f.readline().strip()
             else:
-                raise ClientSecretNotFound(f'Client secret not found in {self.client_secret_file}')
+                raise ClientSecretNotFound(f'Client secret is not provided and not found in {self.client_secret_file}')
 
         if self._secret is None or self._secret == '':
             raise Exception("Invalid secret")
@@ -55,6 +55,11 @@ class APIClient:
     @secret.setter
     def secret(self, value):
         self._secret = value
+        
+        # save secret in the config file
+        with open(self.client_secret_file, 'wt') as f:
+            print(value, file=f)
+        
     
     @property
     def token(self):
@@ -142,8 +147,8 @@ class APIClient:
             return
         
         client_id = "dcache-cta-cscs-ch-users"
-        scope = "openid profile offline_access lst dcache-dev-audience email"
-        redirect_url = 'http://localhost:8282'
+        scope = ""
+        redirect_url = ""
         # we use temporary empty file to avoid password prompts
         with tempfile.NamedTemporaryFile() as password_file:
             with open(password_file.name, 'wt') as out:
@@ -162,7 +167,6 @@ class APIClient:
             
             var_values = [v.strip() for v in ret.stdout.split('\n')[-len(variables)-1:]]
             for key, val in zip(variables, var_values):
-                print(key, val) # debug
                 os.environ[key] = val
             
             empty_passwd = f'--pw-file={password_file_path}'
@@ -173,13 +177,10 @@ class APIClient:
             
             if self.token_name in ret.stdout: # token found
                 token_load_command = f'{token_load_command} {empty_passwd}'
-                print(token_load_command) #debug
                 
                 process = subprocess.Popen([token_load_command],
                             text=True, shell=True)
                 stdout, _ = process.communicate(input="\n\n\n\n")   
-                print(token_load_command, 'exited with code', process.returncode)  # debug
-                print(stdout)  # debug
                 if process.returncode != 0:
                     logger.warning('failed to load token using command: %s', token_load_command)
                     logger.warning('command output: %s', stdout)
@@ -192,16 +193,13 @@ class APIClient:
 
                 gen_command += empty_passwd.split()
                 logger.info('command: %s', gen_command)
-                print(gen_command) # debug
                 process = subprocess.Popen(gen_command, text=True)
-                stdout, _ = process.communicate(input="\n\n\n\n") 
-                print(stdout) # debug           
+                stdout, _ = process.communicate(input="\n\n\n\n")        
                 if process.returncode != 0:
                     logger.error('command output: %s', )
                     raise TokenError(stdout)
             
         self._refresh_token() # make sure token can be loaded before exiting
-        print('token loaded') # debug
             
 
     @token.setter
@@ -252,12 +250,9 @@ class APIClient:
             for entry in self.list_dir(path, recursive=True):
                 print('entry', entry)
                 save_path = entry[len(path)-len(root_dir_name):].strip()
-                print(f"save_path {save_path}") # debug
                 dir_path = os.path.dirname(save_path)
                 if len(dir_path) > 0:
-                    print(f"makedirs {dir_path}") # debug
                     os.makedirs(dir_path, exist_ok=True)
-                print(f"saving {path} to {save_path}") # debug
                 self.fetch_and_save_file(path, save_to_fn=save_path)
           
                 

@@ -50,13 +50,19 @@ def put_path(ctx, local_path, path, recursive):
 
 @cli.command("start-agent")
 @click.pass_context
-def start_agent(ctx):
+@click.option("--secret", "-s", type=str)
+def start_agent(ctx, secret):
+    if secret:
+        ctx.obj['api'].secret = secret
     ctx.obj['api'].start_agent_daemon()
     
     
 @cli.command("get-token")
 @click.pass_context
-def get_token(ctx):
+@click.option("--secret", "-s", type=str)
+def get_token(ctx, secret):
+    if secret:
+        ctx.obj['api'].secret = secret
     ctx.obj['api'].init_agent()
 
 
