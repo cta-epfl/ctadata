@@ -50,7 +50,8 @@ class APIClient:
                 with open(self.client_secret_file) as f:
                     self._secret = f.readline().strip()
             else:
-                raise ClientSecretNotFound(f'Client secret is not provided and not found in {self.client_secret_file}')
+                raise ClientSecretNotFound(
+                    f'Client secret is not provided and not found in {self.client_secret_file}')
 
         if self._secret is None or self._secret == '':
             raise Exception("Invalid secret")
@@ -77,7 +78,8 @@ class APIClient:
         required_utils = ['oidc-agent', 'davix-ls', 'davix-get', 'davix-put']
         missing_utils = []
         for u in required_utils:
-            ret = subprocess.run(f'which {u}', capture_output=False, shell=True)
+            ret = subprocess.run(
+                f'which {u}', capture_output=False, shell=True)
             if ret.returncode != 0:
                 missing_utils.append(u)
         if missing_utils:
@@ -171,7 +173,8 @@ class APIClient:
                 logger.error('oidc-agent start failed: ' + ret.stderr)
                 raise EnvironmentError(ret.stderr)
 
-            var_values = [v.strip() for v in ret.stdout.split('\n')[-len(variables) - 1:]]
+            var_values = [v.strip()
+                          for v in ret.stdout.split('\n')[-len(variables) - 1:]]
             for key, val in zip(variables, var_values):
                 os.environ[key] = val
 
@@ -179,7 +182,8 @@ class APIClient:
             token_load_command = f"oidc-add {self.token_name}"
             token_list_command = f"oidc-add -l"
 
-            ret = subprocess.run(token_list_command, capture_output=True, shell=True, text=True)
+            ret = subprocess.run(token_list_command,
+                                 capture_output=True, shell=True, text=True)
 
             if self.token_name in ret.stdout:  # token found
                 token_load_command = f'{token_load_command} {pw_file_option}'
@@ -188,7 +192,8 @@ class APIClient:
                                            text=True, shell=True)
                 stdout, _ = process.communicate(input="\n\n\n\n")
                 if process.returncode != 0:
-                    logger.warning('failed to load token using command: %s', token_load_command)
+                    logger.warning(
+                        'failed to load token using command: %s', token_load_command)
                     logger.warning('command output: %s', stdout)
                 else:
                     token_loaded = True
@@ -221,7 +226,8 @@ class APIClient:
         options = f' -r {n_threads}' if recursive else ''
         command = f'davix-ls{options} -k -H "Authorization: Bearer {self.token}" {self.dcache_url}' + path
 
-        ret = subprocess.run(command, capture_output=True, shell=True, text=True)
+        ret = subprocess.run(command, capture_output=True,
+                             shell=True, text=True)
         if ret.returncode != 0:
             logger.error('failed to list dir using command: %s', command)
             logger.error('command output: %s', ret.stdout)
@@ -237,7 +243,8 @@ class APIClient:
             path = '/' + path
 
         command = f'davix-get -k -H "Authorization: Bearer {self.token}" {self.dcache_url}{path} > {save_to_fn}'
-        ret = subprocess.run(command, capture_output=True, shell=True, text=True)
+        ret = subprocess.run(command, capture_output=True,
+                             shell=True, text=True)
         if ret.returncode != 0:
             logger.error('failed to fetch file using command: %s', command)
             logger.error('command output: %s', ret.stdout)
@@ -269,7 +276,8 @@ class APIClient:
         logger.info("uploading %s to %s", local_fn, url)
 
         command = f'davix-put -k -H "Authorization: Bearer {self.token}" {local_fn} {url}'
-        ret = subprocess.run(command, capture_output=True, shell=True, text=True)
+        ret = subprocess.run(command, capture_output=True,
+                             shell=True, text=True)
         if ret.returncode != 0:
             logger.error('failed to upload file using command: %s', command)
             logger.error('command output: %s', ret.stdout)
