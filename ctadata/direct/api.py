@@ -51,7 +51,8 @@ class APIClient:
                     self._secret = f.readline().strip()
             else:
                 raise ClientSecretNotFound(
-                    f'Client secret is not provided and not found in {self.client_secret_file}')
+                    f'Client secret is not provided and not ' \
+                        'found in {self.client_secret_file}')
 
         if self._secret is None or self._secret == '':
             raise Exception("Invalid secret")
@@ -84,7 +85,8 @@ class APIClient:
                 missing_utils.append(u)
         if missing_utils:
             raise EnvironmentError(
-                "Please install the following utils before running this code: " + ', '.join(missing_utils))
+                "Please install the following utils before running this " \
+                    "code: " + ', '.join(missing_utils))
 
         secret = self.secret  # test if secret is initialized
 
@@ -94,7 +96,8 @@ class APIClient:
                 return f.readline().strip()
         else:
             raise TokenError(
-                f"Token not found in {self.cta_token_file}. Please start agent using start-agent subcommand")
+                f"Token not found in {self.cta_token_file}. Please start " \
+                    "agent using start-agent subcommand")
 
     @staticmethod
     def _daemonize():
@@ -165,16 +168,19 @@ class APIClient:
 
             variables = ['OIDCD_PID', 'OIDCD_PID_FILE', 'OIDC_SOCK']
 
-            init_command = "export OIDC_AGENT=$(which oidc-agent) && eval `oidc-agent-service use`"
+            init_command = "export OIDC_AGENT=$(which oidc-agent) && " \
+                "eval `oidc-agent-service use`"
             env_vars = ' && '.join([f'echo ${v}' for v in variables])
-            ret = subprocess.run(init_command + " && " + env_vars, capture_output=True,
+            ret = subprocess.run(init_command + " && " + env_vars, 
+                                 capture_output=True,
                                  shell=True, text=True)
             if ret.returncode != 0:
                 logger.error('oidc-agent start failed: ' + ret.stderr)
                 raise EnvironmentError(ret.stderr)
 
             var_values = [v.strip()
-                          for v in ret.stdout.split('\n')[-len(variables) - 1:]]
+                          for v in ret.stdout.split('\n')[-len(variables) - 1:]
+                          ]
             for key, val in zip(variables, var_values):
                 os.environ[key] = val
 
@@ -193,19 +199,20 @@ class APIClient:
                 stdout, _ = process.communicate(input="\n\n\n\n")
                 if process.returncode != 0:
                     logger.warning(
-                        'failed to load token using command: %s', token_load_command)
+                        'failed to load token using command: %s', 
+                        token_load_command)
                     logger.warning('command output: %s', stdout)
                 else:
                     token_loaded = True
             if not token_loaded:
-                gen_command = ['oidc-gen', self.token_name, '--iss', self.iss_url,
-                               f'--client-id={client_id}', '--redirect-url', redirect_url,
-                               '--client-secret', self.secret, '--no-url-call', '--scope', scope]
-                gen_command_log = " ".join(['oidc-gen', self.token_name, '--iss', self.iss_url,
-                                            f'--client-id={client_id}', '--redirect-url', redirect_url,
-                                            '--client-secret ****', '--no-url-call', '--scope', scope])
-
+                gen_command = ['oidc-gen', self.token_name, '--iss', 
+                               self.iss_url, f'--client-id={client_id}',
+                               '--redirect-url', redirect_url,
+                               '--no-url-call', '--scope', scope]
                 gen_command += pw_file_option.split()
+                gen_command += ['--client-secret']
+                gen_command_log = " ".join(gen_command) + " ***"
+                gen_command += [self.secret]
                 logger.info('command: %s', gen_command_log)
                 process = subprocess.Popen(gen_command, text=True)
                 stdout, _ = process.communicate(input="\n\n\n\n")
@@ -224,7 +231,8 @@ class APIClient:
             path = '/' + path
 
         options = f' -r {n_threads}' if recursive else ''
-        command = f'davix-ls{options} -k -H "Authorization: Bearer {self.token}" {self.dcache_url}' + path
+        command = f'davix-ls{options} -k -H "Authorization: ' \
+            f'Bearer {self.token}" {self.dcache_url}' + path
 
         ret = subprocess.run(command, capture_output=True,
                              shell=True, text=True)
@@ -234,7 +242,8 @@ class APIClient:
             logger.error('command stderr: %s', ret.stderr)
             raise StorageException(ret.stderr)
 
-        return [l.strip() for l in ret.stdout.split('\n') if len(l.strip()) > 0]
+        return [l.strip() for l in ret.stdout.split('\n') 
+                if len(l.strip()) > 0]
 
     def fetch_and_save_file(self, path, save_to_fn=None):
         if not save_to_fn:
@@ -242,7 +251,8 @@ class APIClient:
         if not path.startswith('/'):
             path = '/' + path
 
-        command = f'davix-get -k -H "Authorization: Bearer {self.token}" {self.dcache_url}{path} > {save_to_fn}'
+        command = f'davix-get -k -H "Authorization: Bearer ' \
+            f'{self.token}" {self.dcache_url}{path} > {save_to_fn}'
         ret = subprocess.run(command, capture_output=True,
                              shell=True, text=True)
         if ret.returncode != 0:
@@ -275,7 +285,8 @@ class APIClient:
         url = self.dcache_url + path
         logger.info("uploading %s to %s", local_fn, url)
 
-        command = f'davix-put -k -H "Authorization: Bearer {self.token}" {local_fn} {url}'
+        command = f'davix-put -k -H "Authorization: Bearer ' \
+            f'{self.token}" {local_fn} {url}'
         ret = subprocess.run(command, capture_output=True,
                              shell=True, text=True)
         if ret.returncode != 0:
