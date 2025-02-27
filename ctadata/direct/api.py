@@ -160,6 +160,7 @@ class APIClient:
         client_id = "dcache-cta-cscs-ch-users"
         scope = ""
         redirect_url = ""
+        flow = 'device'
         # we use temporary empty file to avoid password prompts
         with tempfile.NamedTemporaryFile() as empty_file:
             with open(empty_file.name, 'wt') as out:
@@ -208,7 +209,8 @@ class APIClient:
                 gen_command = ['oidc-gen', self.token_name, '--iss',
                                self.iss_url, f'--client-id={client_id}',
                                '--redirect-url', redirect_url,
-                               '--no-url-call', '--scope', scope]
+                               '--no-url-call', '--scope', scope,
+                               '--flow', flow]
                 gen_command += pw_file_option.split()
                 gen_command += ['--client-secret']
                 gen_command_log = " ".join(gen_command) + " ***"
