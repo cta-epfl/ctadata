@@ -51,8 +51,8 @@ class APIClient:
                     self._secret = f.readline().strip()
             else:
                 raise ClientSecretNotFound(
-                    f'Client secret is not provided and not ' \
-                        'found in {self.client_secret_file}')
+                    'Client secret is not provided and not '
+                    f'found in {self.client_secret_file}')
 
         if self._secret is None or self._secret == '':
             raise Exception("Invalid secret")
@@ -85,10 +85,10 @@ class APIClient:
                 missing_utils.append(u)
         if missing_utils:
             raise EnvironmentError(
-                "Please install the following utils before running this " \
-                    "code: " + ', '.join(missing_utils))
+                "Please install the following utils before running this "
+                "code: " + ', '.join(missing_utils))
 
-        secret = self.secret  # test if secret is initialized
+        self.secret  # test if secret is initialized
 
     def _load_token(self):
         if os.path.isfile(self.cta_token_file):
@@ -96,8 +96,8 @@ class APIClient:
                 return f.readline().strip()
         else:
             raise TokenError(
-                f"Token not found in {self.cta_token_file}. Please start " \
-                    "agent using start-agent subcommand")
+                f"Token not found in {self.cta_token_file}. Please start "
+                "agent using start-agent subcommand")
 
     @staticmethod
     def _daemonize():
@@ -171,7 +171,7 @@ class APIClient:
             init_command = "export OIDC_AGENT=$(which oidc-agent) && " \
                 "eval `oidc-agent-service use`"
             env_vars = ' && '.join([f'echo ${v}' for v in variables])
-            ret = subprocess.run(init_command + " && " + env_vars, 
+            ret = subprocess.run(init_command + " && " + env_vars,
                                  capture_output=True,
                                  shell=True, text=True)
             if ret.returncode != 0:
@@ -186,7 +186,7 @@ class APIClient:
 
             pw_file_option = f'--pw-file={empty_file_path}'
             token_load_command = f"oidc-add {self.token_name}"
-            token_list_command = f"oidc-add -l"
+            token_list_command = "oidc-add -l"
 
             ret = subprocess.run(token_list_command,
                                  capture_output=True, shell=True, text=True)
@@ -199,13 +199,13 @@ class APIClient:
                 stdout, _ = process.communicate(input="\n\n\n\n")
                 if process.returncode != 0:
                     logger.warning(
-                        'failed to load token using command: %s', 
+                        'failed to load token using command: %s',
                         token_load_command)
                     logger.warning('command output: %s', stdout)
                 else:
                     token_loaded = True
             if not token_loaded:
-                gen_command = ['oidc-gen', self.token_name, '--iss', 
+                gen_command = ['oidc-gen', self.token_name, '--iss',
                                self.iss_url, f'--client-id={client_id}',
                                '--redirect-url', redirect_url,
                                '--no-url-call', '--scope', scope]
@@ -242,8 +242,8 @@ class APIClient:
             logger.error('command stderr: %s', ret.stderr)
             raise StorageException(ret.stderr)
 
-        return [l.strip() for l in ret.stdout.split('\n') 
-                if len(l.strip()) > 0]
+        return [line.strip() for line in ret.stdout.split('\n')
+                if len(line.strip()) > 0]
 
     def fetch_and_save_file(self, path, save_to_fn=None):
         if not save_to_fn:
