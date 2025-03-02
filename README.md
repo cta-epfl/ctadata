@@ -126,7 +126,7 @@ ctadata.upload_certificate('yourcertificate.crt')
 
 Note that if you do not upload your own certificate, you can ask to make use of a shared robot certificate used for data syncing.
 
-# Using direct API
+# Accessing dCache with tokens
 
 The latest version of ctadata has direct_api module which implements direct download/upload mode without using downloadservice as proxy.
 
