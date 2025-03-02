@@ -23,7 +23,7 @@ Currently the direct API uses [oidc-agent](https://indigo-dc.gitbook.io/oidc-age
 $ conda create -name ctadata # install conda environment if you don't have it
 $ conda activate ctadata # activate the environment
 $ conda install oidc-agent davix -c conda-forge # install the packages required
-$ pip install 'ctadata>=0.3.0' # install ctadata library in the same environment
+$ pip install 'ctadata>=0.6.0' # install ctadata library in the same environment
 ```
 
 ##  Token maintanance
