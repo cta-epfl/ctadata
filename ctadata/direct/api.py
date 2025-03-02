@@ -64,7 +64,7 @@ class APIClient:
 
         # save secret in the config file
         with open(self.client_secret_file, 'wt') as f:
-            print(value, file=f)
+            f.write(self.client_secret_file)
 
     @property
     def token(self):
