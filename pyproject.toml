@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ctadata"
-version = "0.5.7"
+version = "0.6.1"
 description = ""
 authors = ["Volodymyr Savchenko <contact@volodymyrsavchenko.com>"]
 readme = "README.md"
@@ -18,5 +18,5 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-cta-data = { callable = "ctadata.cli:main" }
-cta-data-direct = { callable = "ctadata.direct.cli:main" }
+cta-data = "ctadata.cli:main"
+cta-data-direct = "ctadata.direct.cli:main"
