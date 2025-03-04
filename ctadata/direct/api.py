@@ -72,7 +72,7 @@ class APIClient:
 
         # save secret in the config file
         with open(self.client_secret_file, 'wt') as f:
-            f.write(self.client_secret_file)
+            f.write(self._secret)
 
     @property
     def token(self):
