@@ -44,12 +44,11 @@ class APIClient:
     token_update_interval = 300  # in seconds
 
     def __init__(self):
-        """Set TMPDIR to /tmp/$USER to avoid permission issues, applicable to all
-        subprocesses"""
+        "Set TMPDIR to /tmp/$USER to avoid permission issues, applicable " \
+            "to all subprocesses"
 
         os.environ['TMPDIR'] = f'/tmp/{os.environ["USER"]}'
         os.makedirs(os.environ['TMPDIR'], exist_ok=True)
-        
 
     @property
     def secret(self):
@@ -82,7 +81,7 @@ class APIClient:
         if self._token is None or self._token == '':
             raise TokenError("Invalid token")
         return self._token
-    
+
     def _verify_environment(self):
         required_utils = ['oidc-agent', 'davix-ls', 'davix-get', 'davix-put']
         missing_utils = []
