@@ -17,13 +17,12 @@ The latest version of ctadata has direct_api module which implements direct down
 
 ## Installation
 
-Currently the direct API uses [oidc-agent](https://indigo-dc.gitbook.io/oidc-agent) tool for the token maintanance and [davix](https://github.com/cern-fts/davix) tools for downloading and uploading the files. These tools can be either compiled locally and added to PATH environment variable or installed inside [conda] (https://anaconda.org/anaconda/conda) or [mamba] (https://github.com/mamba-org/mamba) environment. Below is the example of the installation using conda package manager.
+Currently the direct API uses [oidc-agent](https://indigo-dc.gitbook.io/oidc-agent) tool for the token maintanance and [davix](https://github.com/cern-fts/davix) tools for downloading and uploading the files. These tools can be either compiled locally and added to PATH environment variable or installed inside [micromamba] (https://mamba.readthedocs.io/en/latest/user_guide/micromamba.html) or [conda] (https://anaconda.org/anaconda/conda) environment. Below is the example of the installation using micromamba package manager.
 
 ```bash
-$ conda create -name ctadata # install conda environment if you don't have it
-$ conda activate ctadata # activate the environment
-$ conda install oidc-agent davix -c conda-forge # install the packages required
-$ pip install 'ctadata>=0.6.0' # install ctadata library in the same environment
+$ micromamba create -n ctadata python oidc-agent davix  # create micromamba environment with python and required binaries
+$ micromamba activate ctadata # activate the environment
+$ pip install ctadata # install ctadata library in the same environment
 ```
 
 ##  Token maintanance
