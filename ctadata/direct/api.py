@@ -326,25 +326,26 @@ class APIClient:
                 fn = os.path.join(dirpath, name)
                 self.upload_file(fn, os.path.join(
                     path, dirpath[len(local_dir):], name))
-                
+
     def request_stop_agent(self):
         logger.info("request agent stop")
         with open(self.stop_request_file, 'wt') as file:
             file.write('\n')
-            
+
     def stop_agent(self):
         command = f'oidc-agent-service stop'
         ret = subprocess.run(command, capture_output=True,
                              shell=True, text=True)
         if ret.returncode == 0:
-            return   
-        logger.error('failed to stop oidc-agent service using command: %s', command)
+            return
+        logger.error(
+            'failed to stop oidc-agent service using command: %s', command)
         command = f'oidc-agent-service kill'
         ret = subprocess.run(command, capture_output=True,
                              shell=True, text=True)
         if ret.returncode != 0:
-            logger.error('failed to stop oidc-agent service using command: %s', command)
-
+            logger.error(
+                'failed to stop oidc-agent service using command: %s', command)
 
 
 api_client = APIClient()
