@@ -333,14 +333,14 @@ class APIClient:
             file.write('\n')
 
     def stop_agent(self):
-        command = f'oidc-agent-service stop'
+        command = 'oidc-agent-service stop'
         ret = subprocess.run(command, capture_output=True,
                              shell=True, text=True)
         if ret.returncode == 0:
             return
         logger.error(
             'failed to stop oidc-agent service using command: %s', command)
-        command = f'oidc-agent-service kill'
+        command = 'oidc-agent-service kill'
         ret = subprocess.run(command, capture_output=True,
                              shell=True, text=True)
         if ret.returncode != 0:
