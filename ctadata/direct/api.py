@@ -146,7 +146,7 @@ class APIClient:
             counter = 0
             while True:
                 if os.path.isfile(self.stop_request_file):
-                    self.stop_agent(self)
+                    self.stop_agent()
                     os.remove(self.stop_request_file)
                     break
                 if counter % token_update_interval == 0:
