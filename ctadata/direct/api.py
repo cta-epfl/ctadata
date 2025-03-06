@@ -38,9 +38,9 @@ class APIClient:
 
     iss_url = 'https://keycloak.cta.cscs.ch/realms/master/'
     dcache_url = 'https://dcache.cta.cscs.ch:2880'
-    cta_token_file = Path.home() / ".cta_token"
-    client_secret_file = Path.home() / ".secret"
-    stop_request_file = Path.home() / ".cta_agent_stop"
+    cta_token_file = str(Path.home() / ".cta_token")
+    client_secret_file = str(Path.home() / ".secret")
+    stop_request_file = str(Path.home() / ".cta_agent_stop")
     token_name = "kk-dcache"
     token_update_interval = 300  # in seconds
     client_id = "dcache-cta-cscs-ch-users"
