@@ -40,6 +40,7 @@ class APIClient:
     dcache_url = 'https://dcache.cta.cscs.ch:2880'
     cta_token_file = Path.home() / ".cta_token"
     client_secret_file = Path.home() / ".secret"
+    stop_request_file = Path.home() / ".cta_agent_stop"
     token_name = "kk-dcache-prod"
     token_update_interval = 300  # in seconds
 
@@ -139,10 +140,19 @@ class APIClient:
             print(token, file=f)
 
     def _agent_loop(self):
+        # make sure token_update_interval is integer >= 1
+        token_update_interval = max(int(self.token_update_interval), 1)
         try:
+            counter = 0
             while True:
-                self._refresh_token()
-                time.sleep(self.token_update_interval)
+                if os.path.isfile(self.stop_request_file):
+                    self.stop_agent(self)
+                    os.remove(self.stop_request_file)
+                    break
+                if counter % token_update_interval == 0:
+                    self._refresh_token()
+                time.sleep(1)
+                counter += 1
         except Exception as ex:
             with open(Path.home() / ".agent.log", 'wt') as f:
                 print(ex, file=f)
@@ -316,6 +326,25 @@ class APIClient:
                 fn = os.path.join(dirpath, name)
                 self.upload_file(fn, os.path.join(
                     path, dirpath[len(local_dir):], name))
+                
+    def request_stop_agent(self):
+        logger.info("request agent stop")
+        with open(self.stop_request_file, 'wt') as file:
+            file.write('\n')
+            
+    def stop_agent(self):
+        command = f'oidc-agent-service stop'
+        ret = subprocess.run(command, capture_output=True,
+                             shell=True, text=True)
+        if ret.returncode == 0:
+            return   
+        logger.error('failed to stop oidc-agent service using command: %s', command)
+        command = f'oidc-agent-service kill'
+        ret = subprocess.run(command, capture_output=True,
+                             shell=True, text=True)
+        if ret.returncode != 0:
+            logger.error('failed to stop oidc-agent service using command: %s', command)
+
 
 
 api_client = APIClient()
