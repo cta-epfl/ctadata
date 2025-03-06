@@ -56,7 +56,6 @@ class APIClient:
             suf = '-dev'
             self.cta_token_file = APIClient.cta_token_file + suf
             self.client_secret_file = APIClient.client_secret_file + suf
-            self.stop_request_file = APIClient.stop_request_file + suf
             self.token_name = APIClient.token_name + suf
             self.client_id = 'dcache-dev'
         
