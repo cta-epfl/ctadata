@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 @click.group()
-@click.option("--dev", "-d", is_flag=True)
+@click.option("--dev", "-d", is_flag=True, help="use dev instance")
 @click.pass_context
 def cli(ctx, dev):
     ctx.obj['api'] = APIClient(dev_instance=dev)
