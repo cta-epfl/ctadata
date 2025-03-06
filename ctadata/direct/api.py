@@ -41,15 +41,25 @@ class APIClient:
     cta_token_file = Path.home() / ".cta_token"
     client_secret_file = Path.home() / ".secret"
     stop_request_file = Path.home() / ".cta_agent_stop"
-    token_name = "kk-dcache-prod"
+    token_name = "kk-dcache"
     token_update_interval = 300  # in seconds
+    client_id = "dcache-cta-cscs-ch-users"
 
-    def __init__(self):
+    def __init__(self, dev_instance=False):
         "Set TMPDIR to /tmp/$USER to avoid permission issues, applicable " \
             "to all subprocesses"
 
         os.environ['TMPDIR'] = f'/tmp/{os.environ["USER"]}'
         os.makedirs(os.environ['TMPDIR'], exist_ok=True)
+        if dev_instance:
+            self.dcache_url = 'https://dcache-dev.ctaodc.ch:2880'
+            suf = '-dev'
+            self.cta_token_file = APIClient.cta_token_file + suf
+            self.client_secret_file = APIClient.client_secret_file + suf
+            self.stop_request_file = APIClient.stop_request_file + suf
+            self.token_name = APIClient.token_name + suf
+            self.client_id = 'dcache-dev'
+        
 
     @property
     def secret(self):
@@ -174,7 +184,6 @@ class APIClient:
         if token_loaded:
             return
 
-        client_id = "dcache-cta-cscs-ch-users"
         scope = ""
         redirect_url = ""
         flow = 'device'
@@ -224,7 +233,7 @@ class APIClient:
                     token_loaded = True
             if not token_loaded:
                 gen_command = ['oidc-gen', self.token_name, '--iss',
-                               self.iss_url, f'--client-id={client_id}',
+                               self.iss_url, f'--client-id={self.client_id}',
                                '--redirect-url', redirect_url,
                                '--no-url-call', '--scope', scope,
                                '--flow', flow]
