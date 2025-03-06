@@ -33,6 +33,7 @@ class APIClient:
     __export_functions__ = ['list_dir', 'fetch_and_save_file',
                             'upload_file', 'upload_dir',
                             'fetch_and_save_file_or_dir',
+                            'start_agent_daemon'
                             ]
     __class_args__ = []
 
@@ -58,7 +59,6 @@ class APIClient:
             self.client_secret_file = APIClient.client_secret_file + suf
             self.token_name = APIClient.token_name + suf
             self.client_id = 'dcache-dev'
-        
 
     @property
     def secret(self):
