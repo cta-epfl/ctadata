@@ -66,6 +66,12 @@ def get_token(ctx, secret):
     ctx.obj['api'].init_agent()
 
 
+@cli.command("stop-agent")
+@click.pass_context
+def stop_agent(ctx):
+    ctx.obj['api'].request_stop_agent()
+
+
 def main():
     try:
         cli(obj={})
