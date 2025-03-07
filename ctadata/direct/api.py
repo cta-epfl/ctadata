@@ -82,6 +82,7 @@ class APIClient:
         # save secret in the config file
         with open(self.client_secret_file, 'wt') as f:
             f.write(self._secret)
+        os.chmod(self.client_secret_file, 0o600)
 
     @property
     def token(self):
@@ -147,6 +148,7 @@ class APIClient:
         token = ret.stdout.strip()
         with open(self.cta_token_file, 'wt') as f:
             print(token, file=f)
+        os.chmod(self.cta_token_file, 0o600)  # Sets file permission to 600
 
     def _agent_loop(self):
         # make sure token_update_interval is integer >= 1
