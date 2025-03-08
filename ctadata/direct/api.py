@@ -53,7 +53,7 @@ class APIClient:
         # to avoid permission issues
         self._oidc_env = os.environ.copy()
         self._oidc_env["TMPDIR"] = tempfile.mkdtemp()
-        
+
         if dev_instance:
             self.dcache_url = 'https://dcache-dev.ctaodc.ch:2880'
             suf = '-dev'
@@ -139,8 +139,8 @@ class APIClient:
         with open("/dev/null", "a+") as devnull:
             os.dup2(devnull.fileno(), sys.stdout.fileno())
             os.dup2(devnull.fileno(), sys.stderr.fileno())
-       
-    @property     
+
+    @property
     def oidc_env(self):
         return self._oidc_env
 
@@ -216,7 +216,7 @@ class APIClient:
             var_values = [v.strip()
                           for v in ret.stdout.split('\n')[-len(variables) - 1:]
                           ]
-                
+
             self._oidc_env.update(zip(variables, var_values))
 
             pw_file_option = f'--pw-file={empty_file_path}'
@@ -252,7 +252,7 @@ class APIClient:
                 gen_command_log = " ".join(gen_command) + " ***"
                 gen_command += [self.secret]
                 logger.info('command: %s', gen_command_log)
-                process = subprocess.Popen(gen_command, text=True, 
+                process = subprocess.Popen(gen_command, text=True,
                                            env=self.oidc_env)
                 stdout, _ = process.communicate(input="\n\n\n\n")
                 if process.returncode != 0:
