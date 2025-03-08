@@ -171,7 +171,7 @@ class APIClient:
                 time.sleep(1)
                 counter += 1
         except Exception as ex:
-            with open(Path.home() / ".agent.log", 'wt') as f:
+            with open(self.profile_dir + "/agent.log", 'wt') as f:
                 print(ex, file=f)
 
     def start_agent_daemon(self):
