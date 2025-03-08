@@ -33,23 +33,32 @@ class APIClient:
     __export_functions__ = ['list_dir', 'fetch_and_save_file',
                             'upload_file', 'upload_dir',
                             'fetch_and_save_file_or_dir',
+                            'start_agent_daemon'
                             ]
     __class_args__ = []
 
     iss_url = 'https://keycloak.cta.cscs.ch/realms/master/'
     dcache_url = 'https://dcache.cta.cscs.ch:2880'
-    cta_token_file = Path.home() / ".cta_token"
-    client_secret_file = Path.home() / ".secret"
-    stop_request_file = Path.home() / ".cta_agent_stop"
-    token_name = "kk-dcache-prod"
+    cta_token_file = str(Path.home() / ".cta_token")
+    client_secret_file = str(Path.home() / ".secret")
+    stop_request_file = str(Path.home() / ".cta_agent_stop")
+    token_name = "kk-dcache"
     token_update_interval = 300  # in seconds
+    client_id = "dcache-cta-cscs-ch-users"
 
-    def __init__(self):
+    def __init__(self, dev_instance=False):
         "Set TMPDIR to /tmp/$USER to avoid permission issues, applicable " \
             "to all subprocesses"
 
         os.environ['TMPDIR'] = f'/tmp/{os.environ["USER"]}'
         os.makedirs(os.environ['TMPDIR'], exist_ok=True)
+        if dev_instance:
+            self.dcache_url = 'https://dcache-dev.ctaodc.ch:2880'
+            suf = '-dev'
+            self.cta_token_file = APIClient.cta_token_file + suf
+            self.client_secret_file = APIClient.client_secret_file + suf
+            self.token_name = APIClient.token_name + suf
+            self.client_id = 'dcache-dev'
 
     @property
     def secret(self):
@@ -73,6 +82,7 @@ class APIClient:
         # save secret in the config file
         with open(self.client_secret_file, 'wt') as f:
             f.write(self._secret)
+        os.chmod(self.client_secret_file, 0o600)
 
     @property
     def token(self):
@@ -138,6 +148,7 @@ class APIClient:
         token = ret.stdout.strip()
         with open(self.cta_token_file, 'wt') as f:
             print(token, file=f)
+        os.chmod(self.cta_token_file, 0o600)  # Sets file permission to 600
 
     def _agent_loop(self):
         # make sure token_update_interval is integer >= 1
@@ -174,7 +185,6 @@ class APIClient:
         if token_loaded:
             return
 
-        client_id = "dcache-cta-cscs-ch-users"
         scope = ""
         redirect_url = ""
         flow = 'device'
@@ -224,7 +234,7 @@ class APIClient:
                     token_loaded = True
             if not token_loaded:
                 gen_command = ['oidc-gen', self.token_name, '--iss',
-                               self.iss_url, f'--client-id={client_id}',
+                               self.iss_url, f'--client-id={self.client_id}',
                                '--redirect-url', redirect_url,
                                '--no-url-call', '--scope', scope,
                                '--flow', flow]

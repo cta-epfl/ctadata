@@ -87,7 +87,27 @@ You can also use command line interface to do this:
 $ cta-data-direct put latest-file-list latest-file-list-bla-bla
 ```
 
+### Using dev instance of dCache server
 
+To access dev instance one may use `-d` or `--dev` option in command interface:
+
+```bash
+$ cta-data-direct -d list /
+```
+
+In python API one should use `dev_instance` optional parameter:
+
+```python
+from ctadata import direct as ctadata
+
+for path in ctadata.list_dir("/", dev_instance=True):
+    print(path)
+```
+
+Note that in order to access dev instance server you will have to maintain separate token using agent service, which can be started with command:
+```bash
+$ cta-data-direct -d start-agent
+```
 
 
 ## Usage from within CTA CSCS JupyterHub platform
