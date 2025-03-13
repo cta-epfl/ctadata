@@ -4,8 +4,6 @@ import os
 
 logger = logging.getLogger(__name__)
 
-# make sure profile dir exists
-os.makedirs(os.path.dirname(APIClient.profile_dir), exist_ok=True)
 
 for function in APIClient.__export_functions__:
 
