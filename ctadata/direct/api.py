@@ -4,7 +4,10 @@ import logging
 import os
 import sys
 import time
+import json
+import base64
 from pathlib import Path
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +21,10 @@ class StorageException(DirectApiError):
 
 
 class TokenError(DirectApiError):
+    pass
+
+
+class TokenExpiredError(TokenError):
     pass
 
 
@@ -110,10 +117,24 @@ class APIClient:
 
         self.secret  # test if secret is initialized
 
+    @staticmethod
+    def _verify_token(token):
+        try:
+            data = json.loads(base64.b64decode(token.split(".")[1] + "="))
+            exp_time = int(data['exp'])
+            exp_time_local = datetime.fromtimestamp(exp_time)
+        except Exception as e:
+            raise TokenError('Invalid token: unexpected format')
+        if datetime.now() > exp_time_local:
+            raise TokenExpiredError(
+                'token has expired on ' + str(exp_time_local))
+
     def _load_token(self):
         if os.path.isfile(self.cta_token_file):
             with open(self.cta_token_file) as f:
-                return f.readline().strip()
+                token = f.readline().strip()
+                self._verify_token(token)
+                return token
         else:
             raise TokenError(
                 f"Token not found in {self.cta_token_file}. Please start "
@@ -155,6 +176,12 @@ class APIClient:
         with open(self.cta_token_file, 'wt') as f:
             print(token, file=f)
         os.chmod(self.cta_token_file, 0o600)  # Sets file permission to 600
+
+    def print_token(self):
+        try:
+            print(self.token)
+        except TokenError as e:
+            print(e, file=sys.stderr)
 
     def _agent_loop(self):
         # make sure token_update_interval is integer >= 1
