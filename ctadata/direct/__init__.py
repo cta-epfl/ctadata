@@ -1,6 +1,5 @@
 from ctadata.direct.api import APIClient
 import logging
-import os
 
 logger = logging.getLogger(__name__)
 
