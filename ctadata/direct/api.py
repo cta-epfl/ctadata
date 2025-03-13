@@ -123,7 +123,7 @@ class APIClient:
             data = json.loads(base64.b64decode(token.split(".")[1] + "="))
             exp_time = int(data['exp'])
             exp_time_local = datetime.fromtimestamp(exp_time)
-        except Exception as e:
+        except Exception:
             raise TokenError('Invalid token: unexpected format')
         if datetime.now() > exp_time_local:
             raise TokenExpiredError(
