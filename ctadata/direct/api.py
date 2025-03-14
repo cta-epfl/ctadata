@@ -39,19 +39,21 @@ class APIClient:
 
     iss_url = 'https://keycloak.cta.cscs.ch/realms/master/'
     dcache_url = 'https://dcache.cta.cscs.ch:2880'
-    cta_token_file = str(Path.home() / ".cta_token")
-    client_secret_file = str(Path.home() / ".secret")
-    stop_request_file = str(Path.home() / ".cta_agent_stop")
+    profile_dir = str(Path.home() / ".config/cta-data")
+    cta_token_file = profile_dir + "/token"
+    client_secret_file = profile_dir + "/secret"
+    stop_request_file = profile_dir + "/cta_agent_stop"
     token_name = "kk-dcache"
     token_update_interval = 300  # in seconds
     client_id = "dcache-cta-cscs-ch-users"
 
     def __init__(self, dev_instance=False):
-        "Set TMPDIR to /tmp/$USER to avoid permission issues, applicable " \
-            "to all subprocesses"
+        os.makedirs(self.profile_dir, exist_ok=True)
+        # we manually configure temporary directory for oidc tools
+        # to avoid permission issues
+        self._oidc_env = os.environ.copy()
+        self._oidc_env["TMPDIR"] = tempfile.mkdtemp()
 
-        os.environ['TMPDIR'] = f'/tmp/{os.environ["USER"]}'
-        os.makedirs(os.environ['TMPDIR'], exist_ok=True)
         if dev_instance:
             self.dcache_url = 'https://dcache-dev.ctaodc.ch:2880'
             suf = '-dev'
@@ -138,10 +140,14 @@ class APIClient:
             os.dup2(devnull.fileno(), sys.stdout.fileno())
             os.dup2(devnull.fileno(), sys.stderr.fileno())
 
+    @property
+    def oidc_env(self):
+        return self._oidc_env
+
     def _refresh_token(self):
         token_print_command = f"oidc-token {self.token_name}"
         ret = subprocess.run(token_print_command, capture_output=True,
-                             shell=True, text=True)
+                             shell=True, text=True, env=self.oidc_env)
         if ret.returncode != 0:
             raise TokenError('oidc-agent error: ' + ret.stderr)
 
@@ -165,7 +171,7 @@ class APIClient:
                 time.sleep(1)
                 counter += 1
         except Exception as ex:
-            with open(Path.home() / ".agent.log", 'wt') as f:
+            with open(self.profile_dir + "/agent.log", 'wt') as f:
                 print(ex, file=f)
 
     def start_agent_daemon(self):
@@ -174,7 +180,6 @@ class APIClient:
         self._agent_loop()
 
     def init_agent(self):
-
         token_loaded = False
         self._verify_environment()
         try:
@@ -201,7 +206,9 @@ class APIClient:
             env_vars = ' && '.join([f'echo ${v}' for v in variables])
             ret = subprocess.run(init_command + " && " + env_vars,
                                  capture_output=True,
-                                 shell=True, text=True)
+                                 shell=True, text=True,
+                                 env=self.oidc_env
+                                 )
             if ret.returncode != 0:
                 logger.error('oidc-agent start failed: ' + ret.stderr)
                 raise EnvironmentError(ret.stderr)
@@ -209,21 +216,23 @@ class APIClient:
             var_values = [v.strip()
                           for v in ret.stdout.split('\n')[-len(variables) - 1:]
                           ]
-            for key, val in zip(variables, var_values):
-                os.environ[key] = val
+
+            self._oidc_env.update(zip(variables, var_values))
 
             pw_file_option = f'--pw-file={empty_file_path}'
             token_load_command = f"oidc-add {self.token_name}"
             token_list_command = "oidc-add -l"
 
             ret = subprocess.run(token_list_command,
-                                 capture_output=True, shell=True, text=True)
+                                 capture_output=True, shell=True, text=True,
+                                 env=self.oidc_env)
 
             if self.token_name in ret.stdout:  # token found
                 token_load_command = f'{token_load_command} {pw_file_option}'
 
                 process = subprocess.Popen([token_load_command],
-                                           text=True, shell=True)
+                                           text=True, shell=True,
+                                           env=self.oidc_env)
                 stdout, _ = process.communicate(input="\n\n\n\n")
                 if process.returncode != 0:
                     logger.warning(
@@ -243,7 +252,8 @@ class APIClient:
                 gen_command_log = " ".join(gen_command) + " ***"
                 gen_command += [self.secret]
                 logger.info('command: %s', gen_command_log)
-                process = subprocess.Popen(gen_command, text=True)
+                process = subprocess.Popen(gen_command, text=True,
+                                           env=self.oidc_env)
                 stdout, _ = process.communicate(input="\n\n\n\n")
                 if process.returncode != 0:
                     logger.error('command output: %s', )
@@ -345,14 +355,14 @@ class APIClient:
     def stop_agent(self):
         command = 'oidc-agent-service stop'
         ret = subprocess.run(command, capture_output=True,
-                             shell=True, text=True)
+                             shell=True, text=True, env=self.oidc_env)
         if ret.returncode == 0:
             return
         logger.error(
             'failed to stop oidc-agent service using command: %s', command)
         command = 'oidc-agent-service kill'
         ret = subprocess.run(command, capture_output=True,
-                             shell=True, text=True)
+                             shell=True, text=True, env=self.oidc_env)
         if ret.returncode != 0:
             logger.error(
                 'failed to stop oidc-agent service using command: %s', command)
