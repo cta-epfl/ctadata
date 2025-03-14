@@ -87,6 +87,14 @@ You can also use command line interface to do this:
 $ cta-data-direct put latest-file-list latest-file-list-bla-bla
 ```
 
+### Using token in external tools
+
+You can print the token to use it with external tools with the following command
+
+```bash
+$ cta-data-direct print-token
+```
+
 ### Using dev instance of dCache server
 
 To access dev instance one may use `-d` or `--dev` option in command interface:

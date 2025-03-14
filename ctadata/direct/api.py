@@ -127,7 +127,8 @@ class APIClient:
             raise TokenError('Invalid token: unexpected format')
         if datetime.now() > exp_time_local:
             raise TokenExpiredError(
-                'token has expired on ' + str(exp_time_local))
+                'The token has expired on ' + str(exp_time_local) + '\n' +
+                'run "cta-data-direct start-agent" to refresh it')
 
     def _load_token(self):
         if os.path.isfile(self.cta_token_file):
