@@ -8,10 +8,7 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.8"
 click = "^8.1.3"
-requests = "^2.31.0"
 importlib-metadata = "^7.0.0"
-webdav4 = "^0.9.8"
-httpx = "^0.26.0"
 
 [build-system]
 requires = ["poetry-core"]
@@ -19,4 +16,3 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 cta-data = "ctadata.cli:main"
-cta-data-direct = "ctadata.direct.cli:main"
