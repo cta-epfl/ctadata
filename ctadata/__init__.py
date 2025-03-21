@@ -1,15 +1,15 @@
 from ctadata.api import APIClient
 import logging
-import importlib.metadata
-__version__ = importlib.metadata.version(__package__)
 
 logger = logging.getLogger(__name__)
+
 
 for function in APIClient.__export_functions__:
 
     def decorate(function):
         def f(*args, **kwargs):
-            api_client = APIClient()
+            api_client = APIClient(
+                dev_instance=kwargs.pop('dev_instance', False))
 
             logger.info(
                 'calling api_client=%s with function=%s args=%s, kwargs=%s',
