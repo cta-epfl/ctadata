@@ -1,6 +1,6 @@
 import click
 import logging
-from ctadata.api import APIClient, DirectApiError
+from ctadata.api import APIClient, DirectApiError, ClientSecretNotFound
 import os
 
 logger = logging.getLogger(__name__)
@@ -51,10 +51,15 @@ def put_path(ctx, local_path, path, recursive):
 
 @cli.command("start-agent", help="start token refresh agent")
 @click.pass_context
-@click.option("--secret", "-s", type=str)
-def start_agent(ctx, secret):
-    if secret:
-        ctx.obj['api'].secret = secret
+@click.option("--reset_secret", "-s", is_flag=True)
+def start_agent(ctx, reset_secret):
+    if not reset_secret:
+        try:
+            ctx.obj['api'].secret
+        except ClientSecretNotFound:
+            reset_secret = True
+    if reset_secret:
+        ctx.obj['api'].secret = input('Enter client secret\n')
     ctx.obj['api'].start_agent_daemon()
 
 

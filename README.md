@@ -32,10 +32,7 @@ To get access to CTA-CSCS storage you need to generate  OpenID Connect token. Th
 ```bash
 $ cta-data start-agent
 ```
-When the command is started for the first time a client secret must be provided as optional argument:
-```bash
-$ cta-data start-agent -s YOUR_SECRET
-```
+
 The token is being stored in the user's home directory, so the above command needs to be started only on a single machine. During the agent initialization process an account is created for the token maintanance. The user is being asked to authenticate the account creation by visiting the authentication page in a browser on any device.
 
 ## Basic usage

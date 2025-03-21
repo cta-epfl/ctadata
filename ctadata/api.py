@@ -74,7 +74,13 @@ class APIClient:
         if not hasattr(self, "_secret"):
             if os.path.isfile(self.client_secret_file):
                 with open(self.client_secret_file) as f:
-                    self._secret = f.readline().strip()
+                    encoded_string = f.readline().strip()
+                    try:
+                        decoded_bytes = base64.b64decode(encoded_string)
+                        self._secret = decoded_bytes.decode('utf-8')
+                    except Exception:
+                        raise ClientSecretNotFound(
+                            'Invalid client secret format')
             else:
                 raise ClientSecretNotFound(
                     'Client secret is not provided and not '
@@ -87,10 +93,10 @@ class APIClient:
     @secret.setter
     def secret(self, value):
         self._secret = value
-
-        # save secret in the config file
+        # save base64 encoded secret in the config file
         with open(self.client_secret_file, 'wt') as f:
-            f.write(self._secret)
+            encoded_bytes = base64.b64encode(self._secret.encode('utf-8'))
+            f.write(encoded_bytes.decode('utf-8'))
         os.chmod(self.client_secret_file, 0o600)
 
     @property
