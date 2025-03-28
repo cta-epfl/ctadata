@@ -113,3 +113,6 @@ Note that in order to access dev instance server you will have to maintain separ
 ```bash
 $ cta-data -d start-agent
 ```
+## Usage from within CTA CSCS JupyterHub platform
+
+The ctadata library can be used within the CTA CSCS JupyterHub platform, as described above, without any changes or limitations.
