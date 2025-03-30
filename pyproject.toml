@@ -19,4 +19,3 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 cta-data = "ctadata.cli:main"
-cta-data-direct = "ctadata.direct.cli:main"
