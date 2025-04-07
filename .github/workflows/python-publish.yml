@@ -33,7 +33,7 @@ jobs:
       id: bump-version
       run: |
         git config --global user.email "vladimir.savchenko+oda-release-bot@gmail.com"
-        git config --global user.name "ODA Release Bot"
+        git config --global user.name "ctadata Release Bot"
         bump2version patch --verbose --commit --tag
         bump2version release --verbose --commit --tag
         echo "::set-output name=new_version::$(git describe --tags --abbrev=0)"
