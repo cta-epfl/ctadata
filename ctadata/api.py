@@ -129,7 +129,7 @@ class APIClient:
         if datetime.now() > exp_time_local:
             raise TokenExpiredError(
                 'The token has expired on ' + str(exp_time_local) + '\n' +
-                'run "cta-data-direct start-agent" to refresh it')
+                'run "cta-data start-agent" to refresh it')
 
     @staticmethod
     def _get_token_exp_time(token):
@@ -406,7 +406,7 @@ class APIClient:
 
         oidc_conf = Path.home() / (".config/oidc-agent/" + self.token_name)
         if os.path.isfile(oidc_conf):
-            os.path.remove(oidc_conf)
+            os.remove(oidc_conf)
 
     def stop_agent(self):
         command = 'oidc-agent-service stop'
