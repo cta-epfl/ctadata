@@ -73,6 +73,12 @@ def get_token(ctx):
 @click.pass_context
 def stop_agent(ctx):
     ctx.obj['api'].request_stop_agent()
+    
+    
+@cli.command("reset-config", help="reset configuration")
+@click.pass_context
+def reset_config(ctx):
+    ctx.obj['api'].reset_config()
 
 
 def main():
