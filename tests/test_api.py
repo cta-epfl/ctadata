@@ -44,7 +44,8 @@ class TransferTokenRedactionTests(unittest.TestCase):
                             if transfer == 'fetch_and_save_file':
                                 client.fetch_and_save_file('missing-file')
                             else:
-                                client.upload_file('local-file', 'missing-file')
+                                client.upload_file(
+                                    'local-file', 'missing-file')
 
                 diagnostics = '\n'.join(logs.output) + str(error.exception)
                 self.assertNotIn(token, diagnostics)
