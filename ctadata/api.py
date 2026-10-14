@@ -191,9 +191,9 @@ class APIClient:
 
     def print_token(self):
         try:
-            token = self.token
+            token = self._load_token()
             exp_time_local = APIClient._get_token_exp_time(token)
-            print(self.token)
+            print(token)
             print('valid till', exp_time_local, file=sys.stderr)
         except TokenError as e:
             print(e, file=sys.stderr)
