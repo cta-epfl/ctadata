@@ -191,9 +191,9 @@ class APIClient:
 
     def print_token(self):
         try:
-            token = self.token
+            token = self._load_token()
             exp_time_local = APIClient._get_token_exp_time(token)
-            print(self.token)
+            print(token)
             print('valid till', exp_time_local, file=sys.stderr)
         except TokenError as e:
             print(e, file=sys.stderr)
@@ -328,21 +328,29 @@ class APIClient:
         return [line.strip() for line in ret.stdout.split('\n')
                 if len(line.strip()) > 0]
 
+    @staticmethod
+    def _redact_token(value, token):
+        return value.replace(token, '******')
+
     def fetch_and_save_file(self, path, save_to_fn=None):
         if not save_to_fn:
             save_to_fn = os.path.basename(path)
         if not path.startswith('/'):
             path = '/' + path
 
+        token = self.token
         command = f'davix-get -k -H "Authorization: Bearer ' \
-            f'{self.token}" {self.dcache_url}{path} > {save_to_fn}'
+            f'{token}" {self.dcache_url}{path} > {save_to_fn}'
         ret = subprocess.run(command, capture_output=True,
                              shell=True, text=True)
         if ret.returncode != 0:
-            logger.error('failed to fetch file using command: %s', command)
-            logger.error('command output: %s', ret.stdout)
-            logger.error('command stderr: %s', ret.stderr)
-            raise StorageException(ret.stderr)
+            logger.error('failed to fetch file using command: %s',
+                         self._redact_token(command, token))
+            logger.error('command output: %s',
+                         self._redact_token(ret.stdout, token))
+            stderr = self._redact_token(ret.stderr, token)
+            logger.error('command stderr: %s', stderr)
+            raise StorageException(stderr)
 
     def fetch_and_save_file_or_dir(self, path, recursive=False):
         path = path.strip()
@@ -368,15 +376,19 @@ class APIClient:
         url = self.dcache_url + path
         logger.info("uploading %s to %s", local_fn, url)
 
+        token = self.token
         command = f'davix-put -k -H "Authorization: Bearer ' \
-            f'{self.token}" {local_fn} {url}'
+            f'{token}" {local_fn} {url}'
         ret = subprocess.run(command, capture_output=True,
                              shell=True, text=True)
         if ret.returncode != 0:
-            logger.error('failed to upload file using command: %s', command)
-            logger.error('command output: %s', ret.stdout)
-            logger.error('command stderr: %s', ret.stderr)
-            raise StorageException(ret.stderr)
+            logger.error('failed to upload file using command: %s',
+                         self._redact_token(command, token))
+            logger.error('command output: %s',
+                         self._redact_token(ret.stdout, token))
+            stderr = self._redact_token(ret.stderr, token)
+            logger.error('command stderr: %s', stderr)
+            raise StorageException(stderr)
 
     def upload_dir(self, local_dir, path):
         logger.info("uploading dir %s to %s", local_dir, path)
